@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>CyberAdmin | Dota 2 / CS2 управление командами</title>
+    <title>Турнирная панель | Google Таблица</title>
     <style>
         * {
             margin: 0;
@@ -31,7 +31,6 @@
             backdrop-filter: blur(10px);
             border-radius: 1.8rem;
             border: 1px solid rgba(0, 150, 255, 0.25);
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5);
             overflow: hidden;
         }
 
@@ -55,6 +54,14 @@
             color: #7bc9ff;
         }
 
+        .tour-date {
+            background: #1a3a5a;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            color: #ffd966;
+        }
+
         .admin-login-btn {
             background: #1e3a6b;
             border: 1px solid #2f6b9e;
@@ -69,7 +76,6 @@
 
         .admin-login-btn:hover {
             background: #2a4a7a;
-            transform: scale(0.97);
         }
 
         .card-body {
@@ -141,10 +147,6 @@
             border-radius: 2rem;
             font-weight: 600;
             cursor: pointer;
-        }
-
-        .add-btn:hover {
-            background: #134e7a;
         }
 
         .players-list {
@@ -254,7 +256,6 @@
             border-radius: 2rem;
             cursor: pointer;
             font-weight: 600;
-            transition: 0.2s;
         }
 
         .tab-btn.active {
@@ -278,14 +279,7 @@
             overflow-y: auto;
         }
 
-        .request-card {
-            background: #0c1126e0;
-            border-radius: 1.2rem;
-            padding: 1rem 1.2rem;
-            border-left: 5px solid #f59e0b;
-        }
-
-        .team-card-item {
+        .request-card, .team-card-item {
             background: #0c1126e0;
             border-radius: 1.2rem;
             padding: 1rem 1.2rem;
@@ -330,20 +324,20 @@
             margin-top: 0.8rem;
         }
 
-        .delete-btn {
-            background: #4a1a2a;
+        .accept-btn {
+            background: #1a4a3a;
             border: none;
-            color: #ff8a8a;
+            color: #8affc0;
             padding: 0.3rem 0.8rem;
             border-radius: 1.5rem;
             cursor: pointer;
             font-size: 0.75rem;
         }
 
-        .accept-btn {
-            background: #1a4a3a;
+        .delete-btn, .reject-btn {
+            background: #4a1a2a;
             border: none;
-            color: #8affc0;
+            color: #ff8a8a;
             padding: 0.3rem 0.8rem;
             border-radius: 1.5rem;
             cursor: pointer;
@@ -358,13 +352,6 @@
             border-radius: 1.2rem;
         }
 
-        .small-note {
-            font-size: 0.7rem;
-            margin-top: 1rem;
-            color: #3f5982;
-            text-align: center;
-        }
-
         .refresh-btn {
             background: #071a2b;
             border: 1px solid #2d6d9b;
@@ -375,18 +362,6 @@
             font-size: 0.8rem;
         }
 
-        .status-badge {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 1rem;
-            background: #0f2a3a;
-        }
-
-        .pending-badge {
-            background: #5a4a1a;
-            color: #ffcc66;
-        }
-
         .status-panel {
             background: #0a1020;
             border-radius: 1rem;
@@ -395,6 +370,22 @@
             font-size: 0.7rem;
             color: #5a7a9a;
             border: 1px dashed #2f6b9e;
+        }
+
+        .date-edit-area {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: #0a1020;
+            border-radius: 1rem;
+            display: none;
+        }
+
+        .date-edit-area input {
+            background: #010a18;
+            border: 1px solid #1e3a6b;
+            border-radius: 0.8rem;
+            padding: 0.5rem;
+            color: white;
         }
 
         .password-modal {
@@ -439,17 +430,6 @@
             border-radius: 2rem;
             cursor: pointer;
         }
-
-        .clear-all-btn {
-            background: #4a1a2a;
-            border: 1px solid #8a3a4a;
-            color: #ffaa88;
-            padding: 0.3rem 0.8rem;
-            border-radius: 1rem;
-            cursor: pointer;
-            font-size: 0.7rem;
-            margin-left: 0.5rem;
-        }
     </style>
 </head>
 <body>
@@ -457,7 +437,10 @@
     <div class="card">
         <div class="card-header">
             <h2>⚔️ ТУРНИРНАЯ ПАНЕЛЬ</h2>
-            <button id="adminLoginBtn" class="admin-login-btn">🔐 Вход для админа</button>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <div class="tour-date" id="tourDateDisplay">📅 Дата тура: --</div>
+                <button id="adminLoginBtn" class="admin-login-btn">🔐 Вход для админа</button>
+            </div>
         </div>
         <div class="card-body">
             <div class="two-columns">
@@ -499,10 +482,7 @@
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h3 style="color:#7bc9ff;">⚙️ УПРАВЛЕНИЕ</h3>
-                        <div>
-                            <button id="refreshBtn" class="refresh-btn">🔄 ОБНОВИТЬ</button>
-                            <button id="clearAllBtn" class="clear-all-btn" style="display:none;">🗑️ ОЧИСТИТЬ ВСЁ</button>
-                        </div>
+                        <button id="refreshBtn" class="refresh-btn">🔄 ОБНОВИТЬ</button>
                     </div>
                     <div class="tabs">
                         <button class="tab-btn active" data-tab="pending">⏳ ЗАЯВКИ (<span id="pendingCount">0</span>)</button>
@@ -514,7 +494,16 @@
                     <div id="activeTab" class="tab-content">
                         <div id="activeList" class="teams-grid"><div class="empty-teams">Загрузка...</div></div>
                     </div>
-                    <div class="status-panel" id="statusPanel">🔄 Подключение к облаку...</div>
+                    
+                    <div id="dateEditArea" class="date-edit-area">
+                        <label style="font-size:0.75rem;">📅 Изменить дату тура:</label>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <input type="date" id="newDateInput">
+                            <button id="saveDateBtn" style="background:#1e3a6b; border:none; color:white; padding:0.3rem 1rem; border-radius:1rem; cursor:pointer;">Сохранить</button>
+                        </div>
+                    </div>
+                    
+                    <div class="status-panel" id="statusPanel">🔄 Подключение к Google Sheets...</div>
                 </div>
             </div>
         </div>
@@ -522,15 +511,24 @@
 </div>
 
 <script>
-    // ========== ОБЛАЧНОЕ ХРАНИЛИЩЕ JSONBin.io ==========
-    const BIN_ID = "675b9e3aacd3cb34a8b6f1a0";
-    const API_KEY = "$2a$10$XxYzAbCdEfGhIjKlMnOpQqRrSsTtUuVvWwXxYyZ";
+    // ========== GOOGLE SHEETS НАСТРОЙКИ ==========
+    // ID вашей таблицы (из ссылки)
+    const SPREADSHEET_ID = "1x43wliSqzl7yVyX1nTIjO4r3JgLFmB3zMkttUs0XQK4";
+    
+    // URL для получения данных в формате JSON (через Google Visualization API)
+    const PENDING_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=pending`;
+    const ACTIVE_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=active`;
+    const SETTINGS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=settings`;
+    
+    // Google Apps Script Web App URL (для записи данных)
+    // ⚠️ ВАЖНО: Вам нужно создать и развернуть скрипт, как описано ниже
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/ЗАМЕНИТЕ_НА_ВАШ_URL/exec";
     
     let pendingTeams = [];
     let activeTeams = [];
+    let tourDate = "";
     let selectedColor = "#3b82f6";
     let isAdmin = false;
-    let isFirstLoad = true;
     
     // DOM элементы
     const teamNameInput = document.getElementById('teamName');
@@ -540,13 +538,16 @@
     const registerBtn = document.getElementById('registerBtn');
     const resultMsg = document.getElementById('resultMsg');
     const refreshBtn = document.getElementById('refreshBtn');
-    const clearAllBtn = document.getElementById('clearAllBtn');
     const pendingListDiv = document.getElementById('pendingList');
     const activeListDiv = document.getElementById('activeList');
     const pendingCountSpan = document.getElementById('pendingCount');
     const activeCountSpan = document.getElementById('activeCount');
     const statusPanel = document.getElementById('statusPanel');
     const adminLoginBtn = document.getElementById('adminLoginBtn');
+    const tourDateDisplay = document.getElementById('tourDateDisplay');
+    const dateEditArea = document.getElementById('dateEditArea');
+    const newDateInput = document.getElementById('newDateInput');
+    const saveDateBtn = document.getElementById('saveDateBtn');
     
     // Табы
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -627,73 +628,67 @@
         renumberPlayers();
     });
     
-    // ========== ЗАГРУЗКА ИЗ ОБЛАКА ==========
-    async function loadFromCloud() {
-        try {
-            statusPanel.innerHTML = "🔄 Загрузка данных из облака...";
-            const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                headers: { 'X-Master-Key': API_KEY }
-            });
-            const data = await response.json();
-            
-            if (data && data.record && data.record.pendingTeams !== undefined) {
-                pendingTeams = data.record.pendingTeams || [];
-                activeTeams = data.record.activeTeams || [];
-                statusPanel.innerHTML = `✅ Облако синхронизировано! Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
-            } else if (isFirstLoad) {
-                statusPanel.innerHTML = "📦 Создаём новое хранилище...";
-                pendingTeams = [];
-                activeTeams = [];
-                await saveToCloud();
-                statusPanel.innerHTML = "✅ Хранилище готово! Теперь можно создавать заявки.";
-                isFirstLoad = false;
-            } else {
-                pendingTeams = [];
-                activeTeams = [];
-                statusPanel.innerHTML = "⚠️ Данные не найдены, созданы пустые списки.";
+    // ========== ПАРСИНГ JSON ИЗ GOOGLE SHEETS ==========
+    function parseGoogleSheetJSON(jsonText) {
+        // Google возвращает данные в формате: google.visualization.Query.setResponse({...})
+        const jsonMatch = jsonText.match(/google\.visualization\.Query\.setResponse\((.+)\)/);
+        if (jsonMatch) {
+            const data = JSON.parse(jsonMatch[1]);
+            const rows = data.table.rows;
+            const result = [];
+            for (let i = 1; i < rows.length; i++) { // пропускаем заголовок
+                const row = rows[i];
+                if (row.c && row.c[0] && row.c[0].v) {
+                    result.push({
+                        id: row.c[0]?.v || '',
+                        teamName: row.c[1]?.v || '',
+                        game: row.c[2]?.v || '',
+                        color: row.c[3]?.v || '#3b82f6',
+                        players: row.c[4]?.v ? row.c[4].v.split('|') : [],
+                        registeredAt: row.c[5]?.v || ''
+                    });
+                }
             }
+            return result;
+        }
+        return [];
+    }
+    
+    // ========== ЗАГРУЗКА ДАННЫХ ==========
+    async function loadFromSheets() {
+        try {
+            statusPanel.innerHTML = "🔄 Загрузка данных из Google Sheets...";
+            
+            // Загрузка даты тура
+            const settingsRes = await fetch(SETTINGS_URL);
+            const settingsText = await settingsRes.text();
+            const settingsMatch = settingsText.match(/google\.visualization\.Query\.setResponse\((.+)\)/);
+            if (settingsMatch) {
+                const settingsData = JSON.parse(settingsMatch[1]);
+                if (settingsData.table.rows.length > 1 && settingsData.table.rows[1].c[0]) {
+                    tourDate = settingsData.table.rows[1].c[0].v;
+                    tourDateDisplay.innerHTML = `📅 Дата тура: ${tourDate}`;
+                }
+            }
+            
+            // Загрузка заявок
+            const pendingRes = await fetch(PENDING_URL);
+            const pendingText = await pendingRes.text();
+            pendingTeams = parseGoogleSheetJSON(pendingText);
+            
+            // Загрузка активных команд
+            const activeRes = await fetch(ACTIVE_URL);
+            const activeText = await activeRes.text();
+            activeTeams = parseGoogleSheetJSON(activeText);
+            
+            statusPanel.innerHTML = `✅ Данные загружены! Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
             renderAll();
         } catch (error) {
             console.error("Ошибка:", error);
-            statusPanel.innerHTML = "⚠️ Ошибка подключения к облаку. Проверьте интернет.";
-        }
-    }
-    
-    // ========== СОХРАНЕНИЕ В ОБЛАКО ==========
-    async function saveToCloud() {
-        try {
-            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': API_KEY
-                },
-                body: JSON.stringify({ 
-                    pendingTeams: pendingTeams, 
-                    activeTeams: activeTeams,
-                    lastUpdated: new Date().toISOString()
-                })
-            });
-            statusPanel.innerHTML = `💾 Сохранено! Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
-        } catch (error) {
-            console.error("Ошибка сохранения:", error);
-            statusPanel.innerHTML = "⚠️ Ошибка сохранения в облако";
-        }
-    }
-    
-    // ========== ПОЛНАЯ ОЧИСТКА ==========
-    async function clearAllData() {
-        if (!isAdmin) {
-            resultMsg.textContent = "⛔ Только администратор может очистить все данные!";
-            return;
-        }
-        if (confirm("⚠️ ВНИМАНИЕ! Это удалит ВСЕ заявки и ВСЕ команды. Отменить будет невозможно. Продолжить?")) {
+            statusPanel.innerHTML = "⚠️ Ошибка подключения. Убедитесь, что таблица опубликована и листы названы правильно (pending, active, settings)";
             pendingTeams = [];
             activeTeams = [];
-            await saveToCloud();
-            await loadFromCloud();
-            resultMsg.textContent = "🗑️ Все данные очищены!";
-            statusPanel.innerHTML = "🧹 Все данные удалены. Хранилище пустое.";
+            renderAll();
         }
     }
     
@@ -701,9 +696,9 @@
     function renderAll() {
         pendingCountSpan.textContent = pendingTeams.length;
         activeCountSpan.textContent = activeTeams.length;
+        dateEditArea.style.display = isAdmin ? 'block' : 'none';
         
-        clearAllBtn.style.display = isAdmin ? 'inline-block' : 'none';
-        
+        // Заявки
         if (pendingTeams.length === 0) {
             pendingListDiv.innerHTML = '<div class="empty-teams">📭 Нет новых заявок</div>';
         } else {
@@ -713,7 +708,7 @@
                         <div class="team-name">
                             <span>🎮 ${escapeHtml(team.game)}</span>
                             <strong style="color: ${team.color || '#f59e0b'}">${escapeHtml(team.teamName)}</strong>
-                            <span class="status-badge pending-badge">⏳ заявка</span>
+                            <span class="status-badge" style="background:#5a4a1a;color:#ffcc66;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">⏳ заявка</span>
                         </div>
                         <span>${team.players.length} игроков</span>
                     </div>
@@ -722,8 +717,8 @@
                     </div>
                     ${isAdmin ? `
                     <div class="action-buttons">
-                        <button class="accept-btn" onclick="acceptTeam('${team.id}')">✅ ПРИНЯТЬ</button>
-                        <button class="reject-btn" onclick="deleteTeam('${team.id}', true)">🗑️ ОТКЛОНИТЬ</button>
+                        <button class="accept-btn" onclick="alert('Для принятия заявки настройте Google Apps Script. Подробности в инструкции ниже.')">✅ ПРИНЯТЬ</button>
+                        <button class="reject-btn" onclick="alert('Для отклонения заявки настройте Google Apps Script. Подробности в инструкции ниже.')">🗑️ ОТКЛОНИТЬ</button>
                     </div>
                     ` : ''}
                     <div style="font-size:0.7rem; color:#5a7a9a; margin-top:0.5rem;">📅 ${escapeHtml(team.registeredAt)}</div>
@@ -731,6 +726,7 @@
             `).join('');
         }
         
+        // Активные
         if (activeTeams.length === 0) {
             activeListDiv.innerHTML = '<div class="empty-teams">🎯 Нет активных команд</div>';
         } else {
@@ -740,7 +736,7 @@
                         <div class="team-name">
                             <span>🎮 ${escapeHtml(team.game)}</span>
                             <strong style="color: ${team.color || '#7bc9ff'}">${escapeHtml(team.teamName)}</strong>
-                            <span class="status-badge">✅ активна</span>
+                            <span class="status-badge" style="background:#1a4a3a;color:#8affc0;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">✅ активна</span>
                         </div>
                         <span>${team.players.length} игроков</span>
                     </div>
@@ -749,7 +745,7 @@
                     </div>
                     ${isAdmin ? `
                     <div class="action-buttons">
-                        <button class="delete-btn" onclick="deleteTeam('${team.id}', false)">🗑️ УДАЛИТЬ</button>
+                        <button class="delete-btn" onclick="alert('Для удаления команды настройте Google Apps Script. Подробности в инструкции ниже.')">🗑️ УДАЛИТЬ</button>
                     </div>
                     ` : ''}
                     <div style="font-size:0.7rem; color:#5a7a9a; margin-top:0.5rem;">📅 ${escapeHtml(team.registeredAt)}</div>
@@ -768,29 +764,6 @@
             }
         }
     }
-    
-    // ========== ДЕЙСТВИЯ АДМИНА ==========
-    window.acceptTeam = async function(teamId) {
-        if (!isAdmin) { resultMsg.textContent = "⛔ Только администратор!"; return; }
-        const idx = pendingTeams.findIndex(t => t.id == teamId);
-        if (idx !== -1) {
-            const accepted = { ...pendingTeams[idx], status: 'active' };
-            activeTeams.push(accepted);
-            pendingTeams.splice(idx, 1);
-            await saveToCloud();
-            await loadFromCloud();
-            resultMsg.textContent = "✅ Команда принята!";
-        }
-    };
-    
-    window.deleteTeam = async function(teamId, isPending) {
-        if (!isAdmin) { resultMsg.textContent = "⛔ Только администратор!"; return; }
-        if (isPending) pendingTeams = pendingTeams.filter(t => t.id != teamId);
-        else activeTeams = activeTeams.filter(t => t.id != teamId);
-        await saveToCloud();
-        await loadFromCloud();
-        resultMsg.textContent = "🗑️ Команда удалена!";
-    };
     
     function escapeHtml(str) {
         if (!str) return '';
@@ -830,12 +803,31 @@
     }
     
     adminLoginBtn.addEventListener('click', showPasswordModal);
-    clearAllBtn.addEventListener('click', clearAllData);
+    refreshBtn.addEventListener('click', () => loadFromSheets());
     
-    // ========== ОТПРАВКА ЗАЯВКИ ==========
+    // Сохранение даты
+    saveDateBtn.addEventListener('click', () => {
+        if (!isAdmin) {
+            resultMsg.textContent = "⛔ Только администратор может менять дату!";
+            return;
+        }
+        const newDate = newDateInput.value;
+        if (newDate) {
+            const formattedDate = newDate.split('-').reverse().join('.');
+            alert(`Для сохранения даты "${formattedDate}" в таблицу нужен Google Apps Script. Инструкция ниже.`);
+        } else {
+            resultMsg.textContent = "❌ Выберите дату!";
+        }
+    });
+    
+    // ========== ОТПРАВКА ЗАЯВКИ (напрямую в Google Sheets через POST) ==========
     async function sendRequest() {
         const teamName = teamNameInput.value.trim();
-        if (!teamName) { resultMsg.textContent = "❌ Введите название!"; return; }
+        if (!teamName) {
+            resultMsg.textContent = "❌ Введите название команды!";
+            resultMsg.style.color = "#ff8a8a";
+            return;
+        }
         
         const players = [];
         let empty = false;
@@ -844,7 +836,11 @@
             if (!val) empty = true;
             else players.push(val);
         });
-        if (empty || players.length === 0) { resultMsg.textContent = "❌ Заполните имена игроков!"; return; }
+        if (empty || players.length === 0) {
+            resultMsg.textContent = "❌ Заполните имена всех игроков!";
+            resultMsg.style.color = "#ff8a8a";
+            return;
+        }
         
         const newTeam = {
             id: Date.now() + Math.random() * 10000,
@@ -852,22 +848,37 @@
             game: gameSelect.value,
             color: selectedColor,
             players: players,
-            registeredAt: new Date().toLocaleString(),
-            status: 'pending'
+            registeredAt: new Date().toLocaleString()
         };
         
-        pendingTeams.push(newTeam);
-        await saveToCloud();
-        await loadFromCloud();
-        resultMsg.textContent = `📨 Заявка "${teamName}" отправлена!`;
-        teamNameInput.value = '';
-        initPlayers(2);
+        // Отправка через Google Apps Script
+        if (APPS_SCRIPT_URL.includes("ЗАМЕНИТЕ")) {
+            resultMsg.textContent = "⚠️ Настройте Google Apps Script. Скопируйте код из инструкции и вставьте в редактор скриптов вашей таблицы.";
+            resultMsg.style.color = "#ffaa44";
+            return;
+        }
+        
+        try {
+            const response = await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "addTeam", ...newTeam })
+            });
+            resultMsg.textContent = `📨 Заявка "${teamName}" отправлена! (появится в таблице после настройки скрипта)`;
+            resultMsg.style.color = "#7bc9ff";
+            teamNameInput.value = '';
+            initPlayers(2);
+            await loadFromSheets();
+        } catch(e) {
+            resultMsg.textContent = "❌ Ошибка отправки. Убедитесь, что Apps Script развёрнут.";
+        }
     }
     
     registerBtn.addEventListener('click', sendRequest);
-    refreshBtn.addEventListener('click', () => loadFromCloud());
     
-    loadFromCloud();
+    // Запуск загрузки
+    loadFromSheets();
 </script>
 </body>
 </html>
