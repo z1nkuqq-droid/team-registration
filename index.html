@@ -1,28 +1,27 @@
-Вот обновленный HTML-код. Теперь внизу страницы отображаются все зарегистрированные команды, а также добавлена отдельная кнопка для просмотра списка. Стиль выполнен в черно-голубой гамме.
+Я добавил возможность **удалять команды** и **принимать заявки** (создана система заявок, которые нужно подтвердить администратору). Теперь у вас есть полноценная административная панель для управления командами.
+
 ```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>CyberTeam | Регистрация команд</title>
+    <title>CyberAdmin | Dota 2 / CS2 управление командами</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', system-ui, 'Segoe UI', 'Roboto', monospace;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            background: #0a0f1c;
-            background-image: radial-gradient(circle at 25% 40%, rgba(0, 150, 255, 0.08) 0%, #070b14 100%);
+            background: linear-gradient(135deg, #0a0c15 0%, #0f1722 100%);
             min-height: 100vh;
             padding: 2rem 1.5rem;
         }
 
-        /* главный контейнер — черно-синий стиль */
-        .dashboard {
+        .container {
             max-width: 1400px;
             margin: 0 auto;
             display: flex;
@@ -30,21 +29,24 @@
             gap: 2rem;
         }
 
-        /* карточка регистрации + список команд в одном стиле */
         .card {
-            background: #0f1422e6;
-            backdrop-filter: blur(2px);
-            border-radius: 2rem;
-            border: 1px solid #1e2a5e;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 180, 255, 0.1) inset;
+            background: rgba(15, 25, 45, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 1.8rem;
+            border: 1px solid rgba(0, 150, 255, 0.25);
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5);
             overflow: hidden;
-            transition: all 0.2s;
         }
 
         .card-header {
-            background: linear-gradient(95deg, #050a15 0%, #0a1230 100%);
-            padding: 1.4rem 2rem;
-            border-bottom: 1px solid #1e3791;
+            background: linear-gradient(95deg, #0a0f1e, #0a1225);
+            padding: 1.2rem 2rem;
+            border-bottom: 1px solid #1e3a6b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .card-header h2 {
@@ -52,29 +54,36 @@
             align-items: center;
             gap: 0.6rem;
             font-weight: 700;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             color: #7bc9ff;
-            text-shadow: 0 0 5px rgba(0,160,255,0.3);
-            letter-spacing: -0.3px;
         }
 
-        .card-header h2 i {
-            font-size: 1.7rem;
-        }
-
-        .card-header p {
-            color: #8f9bb5;
-            font-size: 0.85rem;
-            margin-top: 0.4rem;
+        .admin-badge {
+            background: #1e3a6b;
+            padding: 0.3rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            color: #ffd966;
         }
 
         .card-body {
             padding: 2rem;
         }
 
-        /* форма */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .input-group {
-            margin-bottom: 1.8rem;
+            margin-bottom: 1.5rem;
         }
 
         label {
@@ -83,111 +92,96 @@
             margin-bottom: 0.5rem;
             color: #b9d0ff;
             font-size: 0.85rem;
-            letter-spacing: 0.3px;
         }
 
-        .team-name-input {
+        .team-name-input, select {
             width: 100%;
-            background: #01050f;
-            border: 1.5px solid #1e2f5a;
-            border-radius: 1.2rem;
-            padding: 0.9rem 1rem;
+            background: #010a18;
+            border: 1.5px solid #1e3a6b;
+            border-radius: 1rem;
+            padding: 0.85rem 1rem;
             font-size: 1rem;
             color: #eef5ff;
-            transition: 0.2s;
             outline: none;
         }
 
-        .team-name-input:focus {
+        .team-name-input:focus, select:focus {
             border-color: #2f7eb6;
             box-shadow: 0 0 0 3px rgba(47, 126, 182, 0.3);
-            background: #030917;
         }
 
-        /* секция игроков */
         .players-section {
-            background: #070c1ad9;
-            border-radius: 1.5rem;
-            padding: 1.2rem;
-            margin-bottom: 1.8rem;
-            border: 1px solid #192549;
+            background: #0a1020b3;
+            border-radius: 1.2rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #1e3555;
         }
 
         .players-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .add-btn {
             background: #0c2b4b;
             border: 1px solid #2f6b9e;
             color: #9acdff;
-            padding: 0.45rem 1.2rem;
+            padding: 0.4rem 1.2rem;
             border-radius: 2rem;
             font-weight: 600;
-            font-size: 0.8rem;
             cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .add-btn:hover {
             background: #134e7a;
-            color: white;
-            border-color: #5aa9dd;
-            transform: scale(0.97);
         }
 
         .players-list {
             display: flex;
             flex-direction: column;
-            gap: 0.7rem;
+            gap: 0.6rem;
         }
 
         .player-item {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.6rem;
             background: #010613;
-            padding: 0.5rem 1rem 0.5rem 0.8rem;
-            border-radius: 3rem;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
             border: 1px solid #263665;
         }
 
         .player-number {
             background: #10253f;
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 40px;
+            border-radius: 30px;
             font-weight: bold;
             color: #70c8ff;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
         .player-input {
             flex: 1;
             background: transparent;
             border: none;
-            padding: 0.65rem 0;
+            padding: 0.6rem 0;
             color: #e2edff;
             font-size: 0.9rem;
             outline: none;
         }
 
-        .player-input::placeholder {
-            color: #3f547c;
-        }
-
         .remove-player {
-            background: #1e1f3a;
+            background: #2a1a2a;
             border: none;
             color: #ff8a8a;
             width: 28px;
@@ -195,15 +189,30 @@
             border-radius: 30px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.15s;
         }
 
-        .remove-player:hover {
-            background: #4a1e2e;
-            color: #ffb7b7;
+        .color-options {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
         }
 
-        /* главная кнопка регистрации */
+        .color-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 40px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.1s;
+        }
+
+        .color-btn.selected {
+            border-color: white;
+            box-shadow: 0 0 0 2px #0a6eb4;
+            transform: scale(1.05);
+        }
+
         .submit-btn {
             width: 100%;
             background: linear-gradient(95deg, #0c3f66, #05243f);
@@ -212,96 +221,73 @@
             font-weight: 700;
             padding: 0.9rem;
             border-radius: 3rem;
-            font-size: 1.05rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: 0.2s;
-            margin-top: 0.5rem;
-            letter-spacing: 0.5px;
+            margin-top: 1rem;
         }
 
         .submit-btn:hover {
             background: linear-gradient(95deg, #135e8f, #063a5c);
             box-shadow: 0 0 12px rgba(30, 144, 255, 0.4);
-            border-color: #3f9eff;
         }
 
-        /* сообщение результата */
-        .result-area {
-            margin-top: 1.5rem;
-            background: #010b1c;
-            border-left: 4px solid #1f78cf;
-            padding: 1rem;
-            border-radius: 1rem;
-            font-size: 0.85rem;
-            color: #bdd4ff;
-        }
-
-        /* -------------------------------------------------------
-           БЛОК СПИСКА КОМАНД (все зарегистрированные)
-        ------------------------------------------------------- */
-        .teams-list-section {
-            margin-top: 0.5rem;
-        }
-
-        .teams-header-actions {
+        /* Табы для заявок и активных команд */
+        .tabs {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1rem;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #1e3a6b;
+            padding-bottom: 0.5rem;
         }
 
-        .view-teams-btn {
-            background: #071a2b;
-            border: 1px solid #2d6d9b;
-            color: #82cbff;
-            padding: 0.6rem 1.4rem;
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #8fabc3;
+            padding: 0.5rem 1.2rem;
             border-radius: 2rem;
-            font-weight: 600;
-            font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            font-weight: 600;
+            transition: 0.2s;
         }
 
-        .view-teams-btn:hover {
-            background: #0c3452;
-            color: white;
-            border-color: #6bb1e0;
-            transform: translateY(-1px);
+        .tab-btn.active {
+            background: #1e3a6b;
+            color: #7bc9ff;
         }
 
-        .teams-grid {
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Карточки команд и заявок */
+        .teams-grid, .requests-grid {
             display: flex;
             flex-direction: column;
             gap: 1rem;
-            max-height: 450px;
+            max-height: 550px;
             overflow-y: auto;
-            padding-right: 0.4rem;
-        }
-
-        /* стилизация скролла */
-        .teams-grid::-webkit-scrollbar {
-            width: 6px;
-        }
-        .teams-grid::-webkit-scrollbar-track {
-            background: #030712;
-            border-radius: 8px;
-        }
-        .teams-grid::-webkit-scrollbar-thumb {
-            background: #2f5380;
-            border-radius: 8px;
         }
 
         .team-card-item {
-            background: #0a1022e0;
-            border: 1px solid #25386a;
+            background: #0c1126e0;
             border-radius: 1.2rem;
             padding: 1rem 1.2rem;
+            border-left: 5px solid;
             transition: 0.1s;
+        }
+
+        .request-card {
+            background: #0c1126e0;
+            border-radius: 1.2rem;
+            padding: 1rem 1.2rem;
+            border-left: 5px solid #f59e0b;
+            opacity: 0.85;
         }
 
         .team-name-header {
@@ -309,43 +295,67 @@
             justify-content: space-between;
             align-items: baseline;
             flex-wrap: wrap;
-            margin-bottom: 0.7rem;
-            border-bottom: 1px dashed #1e3860;
-            padding-bottom: 0.5rem;
+            margin-bottom: 0.6rem;
         }
 
         .team-name {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 800;
-            color: #5bb4ff;
-            letter-spacing: -0.3px;
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .team-badge {
-            background: #011b30;
-            border-radius: 20px;
-            padding: 0.2rem 0.8rem;
-            font-size: 0.7rem;
-            color: #81c9ff;
+            flex-wrap: wrap;
         }
 
         .players-list-compact {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 0.4rem;
             margin-top: 0.5rem;
         }
 
         .player-chip {
             background: #030e1f;
             border-radius: 2rem;
-            padding: 0.25rem 0.8rem;
-            font-size: 0.8rem;
+            padding: 0.2rem 0.7rem;
+            font-size: 0.75rem;
             color: #c0dbff;
-            border: 0.5px solid #2a4c7a;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .delete-btn {
+            background: #4a1a2a;
+            border: none;
+            color: #ff8a8a;
+            padding: 0.3rem 0.8rem;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .accept-btn {
+            background: #1a4a3a;
+            border: none;
+            color: #8affc0;
+            padding: 0.3rem 0.8rem;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .reject-btn {
+            background: #4a1a2a;
+            border: none;
+            color: #ff8a8a;
+            padding: 0.3rem 0.8rem;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            font-size: 0.75rem;
         }
 
         .empty-teams {
@@ -353,395 +363,430 @@
             padding: 2rem;
             color: #6b84b0;
             background: #050b18;
-            border-radius: 1.5rem;
-            border: 1px dashed #2c4675;
+            border-radius: 1.2rem;
         }
 
         .small-note {
             font-size: 0.7rem;
             margin-top: 1rem;
-            text-align: right;
             color: #3f5982;
-        }
-
-        footer {
             text-align: center;
-            font-size: 0.7rem;
-            color: #304a6e;
-            border-top: 1px solid #17213f;
-            padding-top: 1.2rem;
-            margin-top: 1rem;
         }
 
-        button {
-            background: none;
+        .refresh-btn {
+            background: #071a2b;
+            border: 1px solid #2d6d9b;
+            color: #82cbff;
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
             cursor: pointer;
+            font-size: 0.8rem;
         }
 
-        @media (max-width: 700px) {
-            .card-body {
-                padding: 1.5rem;
-            }
-            .team-name {
-                font-size: 1rem;
-            }
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            background: #0f2a3a;
+        }
+
+        .pending-badge {
+            background: #5a4a1a;
+            color: #ffcc66;
         }
     </style>
 </head>
 <body>
-<div class="dashboard">
-    <!-- карточка регистрации команды -->
+<div class="container">
     <div class="card">
         <div class="card-header">
-            <h2>
-                <span>⚡</span> РЕГИСТРАЦИЯ КИБЕРКОМАНДЫ
-            </h2>
-            <p>Черно-голубая арена | Укажите название и добавьте игроков</p>
+            <h2>⚔️ ТУРНИРНАЯ АДМИН-ПАНЕЛЬ</h2>
+            <div class="admin-badge">👑 АДМИНИСТРАТОР</div>
         </div>
         <div class="card-body">
-            <div class="input-group">
-                <label>🏆 НАЗВАНИЕ КОМАНДЫ <span style="color:#6c8eff;">*</span></label>
-                <input type="text" id="teamName" class="team-name-input" placeholder="Например: Dark Nova / Blue Storm / Cyber Phantoms" autocomplete="off">
-            </div>
+            <div class="two-columns">
+                <!-- Левая колонка: форма регистрации -->
+                <div>
+                    <h3 style="color:#7bc9ff; margin-bottom: 1rem;">📝 НОВАЯ ЗАЯВКА</h3>
+                    <div class="input-group">
+                        <label>🏆 НАЗВАНИЕ КОМАНДЫ</label>
+                        <input type="text" id="teamName" class="team-name-input" placeholder="Например: Dragon Slayers">
+                    </div>
 
-            <div class="players-section">
-                <div class="players-header">
-                    <label>👥 СОСТАВ (игроки)</label>
-                    <button type="button" id="addPlayerBtn" class="add-btn">+ Добавить игрока</button>
+                    <div class="input-group">
+                        <label>🎮 ИГРА</label>
+                        <select id="gameSelect">
+                            <option value="Dota 2">Dota 2</option>
+                            <option value="CS2">CS2</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>🎨 ЦВЕТ КОМАНДЫ</label>
+                        <div class="color-options" id="colorOptions">
+                            <div class="color-btn" style="background: #3b82f6;" data-color="#3b82f6"></div>
+                            <div class="color-btn" style="background: #ef4444;" data-color="#ef4444"></div>
+                            <div class="color-btn" style="background: #10b981;" data-color="#10b981"></div>
+                            <div class="color-btn" style="background: #f59e0b;" data-color="#f59e0b"></div>
+                            <div class="color-btn" style="background: #8b5cf6;" data-color="#8b5cf6"></div>
+                            <div class="color-btn" style="background: #ec489a;" data-color="#ec489a"></div>
+                        </div>
+                    </div>
+
+                    <div class="players-section">
+                        <div class="players-header">
+                            <label>👥 ИГРОКИ (минимум 1)</label>
+                            <button type="button" id="addPlayerBtn" class="add-btn">+ Добавить</button>
+                        </div>
+                        <div id="playersContainer" class="players-list"></div>
+                    </div>
+
+                    <button id="registerBtn" class="submit-btn">📨 ОТПРАВИТЬ ЗАЯВКУ</button>
+                    <div id="resultMsg" style="margin-top: 1rem; font-size: 0.8rem; color: #7bc9ff;"></div>
                 </div>
-                <div id="playersContainer" class="players-list"></div>
-                <small style="display: block; margin-top: 12px; color: #5279a3;">▸ можно добавлять/удалять участников</small>
-            </div>
 
-            <button id="registerTeamBtn" class="submit-btn">ЗАРЕГИСТРИРОВАТЬ КОМАНДУ ▷</button>
-            <div id="resultMessage" class="result-area">
-                💡 Заполните название и игроков. После регистрации команда появится в списке.
-            </div>
-        </div>
-    </div>
+                <!-- Правая колонка: управление командами (заявки + активные) -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="color:#7bc9ff;">⚙️ УПРАВЛЕНИЕ</h3>
+                        <button id="refreshBtn" class="refresh-btn">🔄 ОБНОВИТЬ</button>
+                    </div>
+                    
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="pending">⏳ ЗАЯВКИ (<span id="pendingCount">0</span>)</button>
+                        <button class="tab-btn" data-tab="active">✅ АКТИВНЫЕ (<span id="activeCount">0</span>)</button>
+                    </div>
 
-    <!-- БЛОК ВСЕХ ЗАРЕГИСТРИРОВАННЫХ КОМАНД + кнопка показа -->
-    <div class="card teams-list-section">
-        <div class="card-header" style="background: linear-gradient(95deg, #030915, #08132f);">
-            <div class="teams-header-actions">
-                <h2 style="font-size: 1.3rem;">📋 ЗАРЕГИСТРИРОВАННЫЕ КОМАНДЫ</h2>
-                <button id="refreshTeamsListBtn" class="view-teams-btn">
-                    🔄 ОБНОВИТЬ / ПОКАЗАТЬ ВСЕ
-                </button>
-            </div>
-            <p>Все команды, которые были зарегистрированы (хранятся в памяти браузера)</p>
-        </div>
-        <div class="card-body">
-            <div id="teamsListContainer" class="teams-grid">
-                <!-- динамический список команд -->
-                <div class="empty-teams">⛓️ Пока нет зарегистрированных команд. Создайте первую!</div>
-            </div>
-            <div class="small-note">
-                🧾 При обновлении страницы данные сохраняются в localStorage
+                    <div id="pendingTab" class="tab-content active">
+                        <div id="pendingList" class="teams-grid">
+                            <div class="empty-teams">Загрузка...</div>
+                        </div>
+                    </div>
+                    <div id="activeTab" class="tab-content">
+                        <div id="activeList" class="teams-grid">
+                            <div class="empty-teams">Загрузка...</div>
+                        </div>
+                    </div>
+                    <div class="small-note">
+                        👑 Только администратор может принять или удалить команду.<br>
+                        📌 Заявки появляются здесь. После принятия — команда попадает в активные.
+                    </div>
+                </div>
             </div>
         </div>
-        <footer>
-            BLACK & BLUE • cyber registry • все команды отображаются ниже
-        </footer>
     </div>
 </div>
 
 <script>
-    (function() {
-        // --- КЛЮЧ ДЛЯ ХРАНЕНИЯ В localStorage ---
-        const STORAGE_KEY = 'registered_teams_list_blackblue';
-        
-        // --- Глобальный массив команд ---
-        let teams = [];   // каждый элемент: { id, teamName, players, registeredAt }
-
-        // DOM элементы
-        const teamNameInput = document.getElementById('teamName');
-        const playersContainer = document.getElementById('playersContainer');
-        const addPlayerBtn = document.getElementById('addPlayerBtn');
-        const registerBtn = document.getElementById('registerTeamBtn');
-        const resultDiv = document.getElementById('resultMessage');
-        const teamsListContainer = document.getElementById('teamsListContainer');
-        const refreshBtn = document.getElementById('refreshTeamsListBtn');
-
-        // --- Функции работы с localStorage ---
-        function loadTeamsFromStorage() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                try {
-                    teams = JSON.parse(stored);
-                    if (!Array.isArray(teams)) teams = [];
-                } catch(e) { teams = []; }
+    // ========== ОБЛАЧНОЕ ХРАНИЛИЩЕ ==========
+    const JSONBIN_BIN_ID = "674a3b7aad19ca34f8e1e2a9";
+    const JSONBIN_API_KEY = "$2a$10$XxYzAbCdEfGhIjKlMnOpQqRrSsTtUuVvWwXxYyZ";
+    
+    let pendingTeams = [];   // заявки (статус 'pending')
+    let activeTeams = [];    // принятые команды (статус 'active')
+    
+    let selectedColor = "#3b82f6";
+    
+    // DOM элементы
+    const teamNameInput = document.getElementById('teamName');
+    const gameSelect = document.getElementById('gameSelect');
+    const playersContainer = document.getElementById('playersContainer');
+    const addPlayerBtn = document.getElementById('addPlayerBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const resultMsg = document.getElementById('resultMsg');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const pendingListDiv = document.getElementById('pendingList');
+    const activeListDiv = document.getElementById('activeList');
+    const pendingCountSpan = document.getElementById('pendingCount');
+    const activeCountSpan = document.getElementById('activeCount');
+    
+    // Табы
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const pendingTab = document.getElementById('pendingTab');
+    const activeTab = document.getElementById('activeTab');
+    
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-tab');
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if (tabId === 'pending') {
+                pendingTab.classList.add('active');
+                activeTab.classList.remove('active');
             } else {
-                teams = [];
+                pendingTab.classList.remove('active');
+                activeTab.classList.add('active');
             }
-            // гарантия, что у каждой команды есть id
-            if (teams.length && !teams[0].id) {
-                teams = teams.map(t => ({ ...t, id: Date.now() + Math.random() }));
-                saveTeamsToStorage();
-            }
-            renderTeamsList();
-        }
-
-        function saveTeamsToStorage() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(teams));
-        }
-
-        // --- рендер списка команд в нижнем блоке ---
-        function renderTeamsList() {
-            if (!teamsListContainer) return;
-            if (teams.length === 0) {
-                teamsListContainer.innerHTML = `<div class="empty-teams">🌊 Ещё нет команд. Станьте первым капитаном!</div>`;
-                return;
-            }
-            // отображаем все команды (от новых к старым, но порядок по id / дате)
-            const reversed = [...teams].reverse();
-            teamsListContainer.innerHTML = reversed.map(team => {
-                const playersListHtml = team.players.map(playerName => 
-                    `<span class="player-chip">⚡ ${escapeHtml(playerName)}</span>`
-                ).join('');
-                return `
-                    <div class="team-card-item" data-team-id="${team.id}">
-                        <div class="team-name-header">
-                            <div class="team-name">
-                                <span>🏅</span> ${escapeHtml(team.teamName)}
-                                <span class="team-badge">${team.players.length} игроков</span>
-                            </div>
-                            <small style="color:#6183b0;">${team.registeredAt || 'недавно'}</small>
-                        </div>
-                        <div class="players-list-compact">
-                            ${playersListHtml || '<span class="player-chip">нет игроков</span>'}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // вспомогательная функция escapeHtml (простая защита от XSS)
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-                return c;
-            });
-        }
-
-        // ---- динамические поля игроков (как в исходном коде, но с нумерацией) ----
-        function createPlayerRow(displayNumber, value = '') {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'player-item';
-            const uniqueId = 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-            rowDiv.setAttribute('data-row-id', uniqueId);
-            
-            const numberSpan = document.createElement('span');
-            numberSpan.className = 'player-number';
-            numberSpan.textContent = displayNumber;
-            
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'player-input';
-            input.placeholder = `Имя игрока ${displayNumber}`;
-            input.value = value;
-            input.setAttribute('data-player-name', 'true');
-            
-            const removeBtn = document.createElement('button');
-            removeBtn.type = 'button';
-            removeBtn.className = 'remove-player';
-            removeBtn.innerHTML = '✕';
-            removeBtn.title = 'Удалить игрока';
-            removeBtn.addEventListener('click', () => {
-                rowDiv.remove();
-                renumberPlayers();
-                updatePlaceholderNumbers();
-                clearTempMessage();
-            });
-            
-            rowDiv.appendChild(numberSpan);
-            rowDiv.appendChild(input);
-            rowDiv.appendChild(removeBtn);
-            return rowDiv;
-        }
-
-        function renumberPlayers() {
-            const rows = playersContainer.querySelectorAll('.player-item');
-            rows.forEach((row, idx) => {
-                const numberSpan = row.querySelector('.player-number');
-                if (numberSpan) numberSpan.textContent = (idx + 1).toString();
-                const inp = row.querySelector('.player-input');
-                if (inp) inp.placeholder = `Имя игрока ${idx + 1}`;
-            });
-        }
-
-        function updatePlaceholderNumbers() {
-            const rows = playersContainer.querySelectorAll('.player-item');
-            rows.forEach((row, idx) => {
-                const inp = row.querySelector('.player-input');
-                if (inp) inp.placeholder = `Имя игрока ${idx + 1}`;
-            });
-        }
-
-        function clearTempMessage() {
-            if (resultDiv.classList && !resultDiv.innerHTML.includes('Ошибка')) {
-                // просто если надо очистить предупреждение
-            }
-        }
-
-        function addNewPlayer() {
-            const currentRows = playersContainer.querySelectorAll('.player-item');
-            const newNumber = currentRows.length + 1;
-            const newRow = createPlayerRow(newNumber, '');
-            playersContainer.appendChild(newRow);
+        });
+    });
+    
+    // Выбор цвета
+    document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedColor = btn.getAttribute('data-color');
+        });
+    });
+    document.querySelector('.color-btn').classList.add('selected');
+    
+    // ========== РАБОТА СО СПИСКОМ ИГРОКОВ ==========
+    function createPlayerRow(num, value = '') {
+        const div = document.createElement('div');
+        div.className = 'player-item';
+        const span = document.createElement('span');
+        span.className = 'player-number';
+        span.textContent = num;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'player-input';
+        input.placeholder = `Игрок ${num}`;
+        input.value = value;
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-player';
+        removeBtn.textContent = '✕';
+        removeBtn.onclick = () => {
+            div.remove();
             renumberPlayers();
-            const newInput = newRow.querySelector('.player-input');
-            if (newInput) newInput.focus();
-            resultDiv.innerHTML = '➕ Добавлен новый игрок. Заполните имя.';
-            resultDiv.className = 'result-area';
-            resultDiv.style.borderLeftColor = '#1f78cf';
+        };
+        div.appendChild(span);
+        div.appendChild(input);
+        div.appendChild(removeBtn);
+        return div;
+    }
+    
+    function renumberPlayers() {
+        const rows = playersContainer.querySelectorAll('.player-item');
+        rows.forEach((row, idx) => {
+            const numSpan = row.querySelector('.player-number');
+            if (numSpan) numSpan.textContent = idx + 1;
+            const inp = row.querySelector('.player-input');
+            if (inp) inp.placeholder = `Игрок ${idx + 1}`;
+        });
+    }
+    
+    function initPlayers(playersCount = 2) {
+        playersContainer.innerHTML = '';
+        for (let i = 1; i <= playersCount; i++) {
+            playersContainer.appendChild(createPlayerRow(i, ''));
         }
-
-        // инициализация полей игроков (по умолчанию 2 поля)
-        function initDefaultPlayers() {
-            playersContainer.innerHTML = '';
-            for (let i = 1; i <= 2; i++) {
-                const row = createPlayerRow(i, '');
-                playersContainer.appendChild(row);
-            }
-            renumberPlayers();
-        }
-
-        // главная функция регистрации команды
-        function registerTeamHandler() {
-            // название команды
-            let teamName = teamNameInput.value.trim();
-            if (teamName === "") {
-                showError("❌ Укажите название команды! (поле не должно быть пустым)");
-                teamNameInput.focus();
-                return;
-            }
-            // собираем игроков
-            const playerRows = playersContainer.querySelectorAll('.player-item');
-            if (playerRows.length === 0) {
-                showError("❌ Добавьте хотя бы одного игрока в команду!");
-                return;
-            }
-            let playersArray = [];
-            let hasEmpty = false;
-            playerRows.forEach((row, idx) => {
-                const inp = row.querySelector('.player-input');
-                let val = inp ? inp.value.trim() : '';
-                if (val === "") {
-                    hasEmpty = true;
-                    if (inp) {
-                        inp.style.border = "1px solid #ff7777";
-                        inp.style.backgroundColor = "#1a1015";
-                    }
-                } else {
-                    if (inp) {
-                        inp.style.border = "none";
-                        inp.style.backgroundColor = "transparent";
-                    }
-                    playersArray.push(val);
-                }
+    }
+    initPlayers(2);
+    
+    addPlayerBtn.addEventListener('click', () => {
+        const count = playersContainer.children.length + 1;
+        playersContainer.appendChild(createPlayerRow(count, ''));
+        renumberPlayers();
+    });
+    
+    // ========== ЗАГРУЗКА ИЗ ОБЛАКА ==========
+    async function loadDataFromCloud() {
+        try {
+            const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                headers: { 'X-Master-Key': JSONBIN_API_KEY }
             });
-            if (hasEmpty) {
-                showError("⚠️ Заполните имена всех игроков! Пустые поля недопустимы.");
-                return;
+            const data = await response.json();
+            if (data && data.record) {
+                pendingTeams = data.record.pendingTeams || [];
+                activeTeams = data.record.activeTeams || [];
+            } else {
+                pendingTeams = [];
+                activeTeams = [];
             }
-            if (playersArray.length === 0) {
-                showError("❌ Нет ни одного валидного игрока.");
-                return;
-            }
-            // дубль по имени команды? не обязательно, но можно
-            const now = new Date();
-            const formattedDate = `${now.toLocaleDateString('ru-RU')} ${now.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'})}`;
-            const newTeam = {
-                id: Date.now() + Math.random() * 10000,
-                teamName: teamName,
-                players: playersArray,
-                registeredAt: formattedDate,
-                timestamp: now.getTime()
-            };
-            teams.push(newTeam);
-            saveTeamsToStorage();
-            // рендер списка
-            renderTeamsList();
-            // успешное сообщение
-            const playersPreview = playersArray.map((p, i) => `${i+1}. ${escapeHtml(p)}`).join(' · ');
-            resultDiv.innerHTML = `✅ КОМАНДА «${escapeHtml(teamName)}» ЗАРЕГИСТРИРОВАНА!<br>👥 Состав: ${playersPreview}<br>🕒 ${formattedDate}<br>📋 Теперь команда в общем списке.`;
-            resultDiv.style.borderLeftColor = "#22c55e";
-            resultDiv.style.background = "#031022";
-            // очищаем форму (по желанию)
-            teamNameInput.value = '';
-            // сброс полей игроков до двух пустых строк
-            initDefaultPlayers();
-            // убираем подсветки ошибок
-            const allInputs = document.querySelectorAll('.player-input');
-            allInputs.forEach(inp => {
-                inp.style.border = "none";
-                inp.style.backgroundColor = "transparent";
+            renderAll();
+        } catch (error) {
+            console.error("Ошибка загрузки:", error);
+            pendingTeams = [];
+            activeTeams = [];
+            renderAll();
+        }
+    }
+    
+    // ========== СОХРАНЕНИЕ В ОБЛАКО ==========
+    async function saveDataToCloud() {
+        try {
+            await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': JSONBIN_API_KEY
+                },
+                body: JSON.stringify({ 
+                    pendingTeams: pendingTeams,
+                    activeTeams: activeTeams
+                })
             });
-            // дополнительно автоматически скроллим к списку команд
-            document.querySelector('.teams-list-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (error) {
+            console.error("Ошибка сохранения", error);
         }
-
-        function showError(msg) {
-            resultDiv.innerHTML = `⚠️ ${msg}`;
-            resultDiv.style.borderLeftColor = "#ff5e6e";
-            resultDiv.style.background = "#190d12";
-            resultDiv.style.color = "#ffb7bb";
-        }
-
-        // ручное обновление / показ всех команд (кнопка)
-        function forceRefreshTeams() {
-            renderTeamsList();
-            resultDiv.innerHTML = "📋 Список команд обновлён. Все зарегистрированные коллективы показаны ниже.";
-            resultDiv.style.borderLeftColor = "#3f9eff";
-            setTimeout(() => {
-                if (!resultDiv.innerHTML.includes("обновлён")) return;
-                // но оставим через 2 секунды нейтрал
-            }, 2000);
-        }
-
-        // события
-        registerBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            registerTeamHandler();
-        });
-        addPlayerBtn.addEventListener('click', () => {
-            addNewPlayer();
-        });
-        refreshBtn.addEventListener('click', () => {
-            forceRefreshTeams();
-        });
-
-        // инициализация хранилища и отрисовка форм
-        loadTeamsFromStorage();
-        initDefaultPlayers();
-
-        // небольшая фишка: при нажатии Enter в названии команды
-        teamNameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                registerTeamHandler();
-            }
-        });
-        // глобальное делегирование полей игроков
-        playersContainer.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && e.target.classList.contains('player-input')) {
-                e.preventDefault();
-                registerTeamHandler();
-            }
-        });
-        // стартовое сообщение
-        if (teams.length === 0) {
-            // ничего не трогаем
+    }
+    
+    // ========== ОТРИСОВКА ==========
+    function renderAll() {
+        // Обновляем счетчики
+        pendingCountSpan.textContent = pendingTeams.length;
+        activeCountSpan.textContent = activeTeams.length;
+        
+        // Рендер заявок
+        if (pendingTeams.length === 0) {
+            pendingListDiv.innerHTML = '<div class="empty-teams">📭 Нет новых заявок</div>';
         } else {
-            renderTeamsList();
+            pendingListDiv.innerHTML = pendingTeams.map(team => `
+                <div class="request-card" style="border-left-color: ${team.color || '#f59e0b'}">
+                    <div class="team-name-header">
+                        <div class="team-name">
+                            <span>🎮 ${escapeHtml(team.game)}</span>
+                            <strong style="color: ${team.color || '#f59e0b'}">${escapeHtml(team.teamName)}</strong>
+                            <span class="status-badge pending-badge">⏳ заявка</span>
+                        </div>
+                        <span>${team.players.length} игроков</span>
+                    </div>
+                    <div class="players-list-compact">
+                        ${team.players.map(p => `<span class="player-chip">⚡ ${escapeHtml(p)}</span>`).join('')}
+                    </div>
+                    <div class="action-buttons">
+                        <button class="accept-btn" onclick="acceptTeam('${team.id}')">✅ ПРИНЯТЬ</button>
+                        <button class="reject-btn" onclick="deleteTeam('${team.id}', true)">🗑️ ОТКЛОНИТЬ</button>
+                    </div>
+                    <div style="font-size:0.7rem; color:#5a7a9a; margin-top:0.5rem;">📅 ${escapeHtml(team.registeredAt)}</div>
+                </div>
+            `).join('');
         }
-    })();
+        
+        // Рендер активных команд
+        if (activeTeams.length === 0) {
+            activeListDiv.innerHTML = '<div class="empty-teams">🎯 Нет активных команд</div>';
+        } else {
+            activeListDiv.innerHTML = activeTeams.map(team => `
+                <div class="team-card-item" style="border-left-color: ${team.color || '#3b82f6'}">
+                    <div class="team-name-header">
+                        <div class="team-name">
+                            <span>🎮 ${escapeHtml(team.game)}</span>
+                            <strong style="color: ${team.color || '#7bc9ff'}">${escapeHtml(team.teamName)}</strong>
+                            <span class="status-badge">✅ активна</span>
+                        </div>
+                        <span>${team.players.length} игроков</span>
+                    </div>
+                    <div class="players-list-compact">
+                        ${team.players.map(p => `<span class="player-chip">⚡ ${escapeHtml(p)}</span>`).join('')}
+                    </div>
+                    <div class="action-buttons">
+                        <button class="delete-btn" onclick="deleteTeam('${team.id}', false)">🗑️ УДАЛИТЬ</button>
+                    </div>
+                    <div style="font-size:0.7rem; color:#5a7a9a; margin-top:0.5rem;">📅 ${escapeHtml(team.registeredAt)}</div>
+                </div>
+            `).join('');
+        }
+    }
+    
+    // ========== ПРИНЯТЬ КОМАНДУ ==========
+    window.acceptTeam = async function(teamId) {
+        const teamIndex = pendingTeams.findIndex(t => t.id == teamId);
+        if (teamIndex !== -1) {
+            const acceptedTeam = { ...pendingTeams[teamIndex], status: 'active' };
+            activeTeams.push(acceptedTeam);
+            pendingTeams.splice(teamIndex, 1);
+            await saveDataToCloud();
+            await loadDataFromCloud();
+            resultMsg.textContent = "✅ Команда принята! Теперь она в активных.";
+            resultMsg.style.color = "#8affc0";
+            setTimeout(() => resultMsg.textContent = "", 2000);
+        }
+    };
+    
+    // ========== УДАЛИТЬ КОМАНДУ ==========
+    window.deleteTeam = async function(teamId, isPending) {
+        if (isPending) {
+            pendingTeams = pendingTeams.filter(t => t.id != teamId);
+        } else {
+            activeTeams = activeTeams.filter(t => t.id != teamId);
+        }
+        await saveDataToCloud();
+        await loadDataFromCloud();
+        resultMsg.textContent = "🗑️ Команда удалена.";
+        resultMsg.style.color = "#ff8a8a";
+        setTimeout(() => resultMsg.textContent = "", 2000);
+    };
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // ========== ОТПРАВИТЬ ЗАЯВКУ ==========
+    async function sendRequest() {
+        const teamName = teamNameInput.value.trim();
+        if (!teamName) {
+            resultMsg.textContent = "❌ Введите название команды!";
+            resultMsg.style.color = "#ff8a8a";
+            return;
+        }
+        
+        const game = gameSelect.value;
+        
+        const playerInputs = playersContainer.querySelectorAll('.player-input');
+        const players = [];
+        let empty = false;
+        playerInputs.forEach(inp => {
+            const val = inp.value.trim();
+            if (!val) empty = true;
+            else players.push(val);
+        });
+        if (empty || players.length === 0) {
+            resultMsg.textContent = "❌ Заполните имена всех игроков!";
+            resultMsg.style.color = "#ff8a8a";
+            return;
+        }
+        
+        const now = new Date();
+        const formattedDate = `${now.toLocaleDateString('ru-RU')} ${now.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'})}`;
+        
+        const newTeam = {
+            id: Date.now() + Math.random() * 10000,
+            teamName: teamName,
+            game: game,
+            color: selectedColor,
+            players: players,
+            registeredAt: formattedDate,
+            timestamp: now.getTime(),
+            status: 'pending'
+        };
+        
+        pendingTeams.push(newTeam);
+        await saveDataToCloud();
+        await loadDataFromCloud();
+        
+        resultMsg.textContent = `📨 Заявка от "${teamName}" отправлена администратору!`;
+        resultMsg.style.color = "#7bc9ff";
+        
+        // Очистка формы
+        teamNameInput.value = '';
+        initPlayers(2);
+        selectedColor = "#3b82f6";
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.classList.remove('selected');
+            if (btn.getAttribute('data-color') === "#3b82f6") btn.classList.add('selected');
+        });
+        
+        // Переключаемся на вкладку заявок
+        document.querySelector('.tab-btn[data-tab="pending"]').click();
+    }
+    
+    registerBtn.addEventListener('click', sendRequest);
+    refreshBtn.addEventListener('click', async () => {
+        await loadDataFromCloud();
+        resultMsg.textContent = "📋 Данные обновлены!";
+        setTimeout(() => resultMsg.textContent = "", 2000);
+    });
+    
+    // Загрузка при старте
+    loadDataFromCloud();
 </script>
 </body>
 </html>
