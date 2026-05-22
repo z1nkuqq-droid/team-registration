@@ -55,12 +55,21 @@
             color: #7bc9ff;
         }
 
-        .admin-badge {
+        .admin-login-btn {
             background: #1e3a6b;
-            padding: 0.3rem 1rem;
+            border: 1px solid #2f6b9e;
+            color: #ffd966;
+            padding: 0.4rem 1.2rem;
             border-radius: 2rem;
             font-size: 0.8rem;
-            color: #ffd966;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
+        }
+
+        .admin-login-btn:hover {
+            background: #2a4a7a;
+            transform: scale(0.97);
         }
 
         .card-body {
@@ -261,7 +270,7 @@
             display: block;
         }
 
-        .teams-grid, .requests-grid {
+        .teams-grid {
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -269,20 +278,18 @@
             overflow-y: auto;
         }
 
-        .team-card-item {
-            background: #0c1126e0;
-            border-radius: 1.2rem;
-            padding: 1rem 1.2rem;
-            border-left: 5px solid;
-            transition: 0.1s;
-        }
-
         .request-card {
             background: #0c1126e0;
             border-radius: 1.2rem;
             padding: 1rem 1.2rem;
             border-left: 5px solid #f59e0b;
-            opacity: 0.85;
+        }
+
+        .team-card-item {
+            background: #0c1126e0;
+            border-radius: 1.2rem;
+            padding: 1rem 1.2rem;
+            border-left: 5px solid;
         }
 
         .team-name-header {
@@ -343,16 +350,6 @@
             font-size: 0.75rem;
         }
 
-        .reject-btn {
-            background: #4a1a2a;
-            border: none;
-            color: #ff8a8a;
-            padding: 0.3rem 0.8rem;
-            border-radius: 1.5rem;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-
         .empty-teams {
             text-align: center;
             padding: 2rem;
@@ -390,7 +387,7 @@
             color: #ffcc66;
         }
 
-        .debug-panel {
+        .status-panel {
             background: #0a1020;
             border-radius: 1rem;
             padding: 0.8rem;
@@ -399,25 +396,66 @@
             color: #5a7a9a;
             border: 1px dashed #2f6b9e;
         }
+
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #0f172a;
+            border: 1px solid #2f6b9e;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            width: 320px;
+            text-align: center;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            background: #010a18;
+            border: 1px solid #1e3a6b;
+            border-radius: 1rem;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .modal-content button {
+            background: #1e3a6b;
+            border: none;
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 2rem;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="card">
         <div class="card-header">
-            <h2>⚔️ ТУРНИРНАЯ АДМИН-ПАНЕЛЬ</h2>
-            <div class="admin-badge">👑 АДМИНИСТРАТОР</div>
+            <h2>⚔️ ТУРНИРНАЯ ПАНЕЛЬ</h2>
+            <button id="adminLoginBtn" class="admin-login-btn">🔐 Вход для админа</button>
         </div>
         <div class="card-body">
             <div class="two-columns">
-                <!-- Левая колонка: форма регистрации -->
                 <div>
                     <h3 style="color:#7bc9ff; margin-bottom: 1rem;">📝 НОВАЯ ЗАЯВКА</h3>
                     <div class="input-group">
                         <label>🏆 НАЗВАНИЕ КОМАНДЫ</label>
                         <input type="text" id="teamName" class="team-name-input" placeholder="Например: Dragon Slayers">
                     </div>
-
                     <div class="input-group">
                         <label>🎮 ИГРА</label>
                         <select id="gameSelect">
@@ -425,7 +463,6 @@
                             <option value="CS2">CS2</option>
                         </select>
                     </div>
-
                     <div class="input-group">
                         <label>🎨 ЦВЕТ КОМАНДЫ</label>
                         <div class="color-options" id="colorOptions">
@@ -437,7 +474,6 @@
                             <div class="color-btn" style="background: #ec489a;" data-color="#ec489a"></div>
                         </div>
                     </div>
-
                     <div class="players-section">
                         <div class="players-header">
                             <label>👥 ИГРОКИ (минимум 1)</label>
@@ -445,45 +481,29 @@
                         </div>
                         <div id="playersContainer" class="players-list"></div>
                     </div>
-
                     <button id="registerBtn" class="submit-btn">📨 ОТПРАВИТЬ ЗАЯВКУ</button>
                     <div id="resultMsg" style="margin-top: 1rem; font-size: 0.8rem; color: #7bc9ff;"></div>
-                    
-                    <!-- Кнопка для тестовой заявки -->
-                    <button id="testRequestBtn" style="margin-top: 0.5rem; background: #2a4a3a; border: none; color: white; padding: 0.3rem; border-radius: 1rem; font-size: 0.7rem; cursor: pointer;">📌 ТЕСТОВАЯ ЗАЯВКА (для проверки)</button>
                 </div>
 
-                <!-- Правая колонка: управление командами -->
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h3 style="color:#7bc9ff;">⚙️ УПРАВЛЕНИЕ</h3>
                         <button id="refreshBtn" class="refresh-btn">🔄 ОБНОВИТЬ</button>
                     </div>
-                    
                     <div class="tabs">
                         <button class="tab-btn active" data-tab="pending">⏳ ЗАЯВКИ (<span id="pendingCount">0</span>)</button>
                         <button class="tab-btn" data-tab="active">✅ АКТИВНЫЕ (<span id="activeCount">0</span>)</button>
                     </div>
-
                     <div id="pendingTab" class="tab-content active">
-                        <div id="pendingList" class="teams-grid">
-                            <div class="empty-teams">Загрузка...</div>
-                        </div>
+                        <div id="pendingList" class="teams-grid"><div class="empty-teams">Загрузка...</div></div>
                     </div>
                     <div id="activeTab" class="tab-content">
-                        <div id="activeList" class="teams-grid">
-                            <div class="empty-teams">Загрузка...</div>
-                        </div>
+                        <div id="activeList" class="teams-grid"><div class="empty-teams">Загрузка...</div></div>
                     </div>
-                    
-                    <!-- Панель отладки -->
-                    <div class="debug-panel" id="debugPanel">
-                        🔧 Статус: подключение к облаку...
-                    </div>
-                    
+                    <div class="status-panel" id="statusPanel">🔄 Подключение к облаку...</div>
                     <div class="small-note">
-                        👑 Только администратор может принять или удалить команду.<br>
-                        📌 Заявки появляются здесь. После принятия — команда попадает в активные.
+                        🌐 Все данные синхронизируются в облаке!<br>
+                        🔐 Админ: нажмите «Вход для админа» и введите пароль <code style="background:#1a2a3a;padding:2px 6px;border-radius:4px;">qwe123asd</code>
                     </div>
                 </div>
             </div>
@@ -492,18 +512,15 @@
 </div>
 
 <script>
-    // ========== ЛОКАЛЬНОЕ ХРАНИЛИЩЕ (вместо JSONBin) ==========
-    // Используем localStorage, но синхронизируем через простой механизм
-    // Чтобы разные пользователи видели одни и те же данные, нужно общее хранилище.
-    // Временно используем localStorage + демо-данные
+    // ========== ОБЛАЧНОЕ ХРАНИЛИЩЕ JSONBin.io ==========
+    // Это БЕСПЛАТНЫЙ сервис, данные видны ВСЕМ пользователям!
+    const BIN_ID = "675b9e3aacd3cb34a8b6f1a0";  // Мой публичный бин
+    const API_KEY = "$2a$10$XxYzAbCdEfGhIjKlMnOpQqRrSsTtUuVvWwXxYyZ";
     
     let pendingTeams = [];
     let activeTeams = [];
     let selectedColor = "#3b82f6";
-    
-    // Ключи для localStorage
-    const STORAGE_PENDING = 'tournament_pending_teams';
-    const STORAGE_ACTIVE = 'tournament_active_teams';
+    let isAdmin = false;
     
     // DOM элементы
     const teamNameInput = document.getElementById('teamName');
@@ -511,14 +528,14 @@
     const playersContainer = document.getElementById('playersContainer');
     const addPlayerBtn = document.getElementById('addPlayerBtn');
     const registerBtn = document.getElementById('registerBtn');
-    const testRequestBtn = document.getElementById('testRequestBtn');
     const resultMsg = document.getElementById('resultMsg');
     const refreshBtn = document.getElementById('refreshBtn');
     const pendingListDiv = document.getElementById('pendingList');
     const activeListDiv = document.getElementById('activeList');
     const pendingCountSpan = document.getElementById('pendingCount');
     const activeCountSpan = document.getElementById('activeCount');
-    const debugPanel = document.getElementById('debugPanel');
+    const statusPanel = document.getElementById('statusPanel');
+    const adminLoginBtn = document.getElementById('adminLoginBtn');
     
     // Табы
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -530,7 +547,6 @@
             const tabId = btn.getAttribute('data-tab');
             tabBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
             if (tabId === 'pending') {
                 pendingTab.classList.add('active');
                 activeTab.classList.remove('active');
@@ -551,7 +567,7 @@
     });
     document.querySelector('.color-btn').classList.add('selected');
     
-    // ========== РАБОТА СО СПИСКОМ ИГРОКОВ ==========
+    // Работа со списком игроков
     function createPlayerRow(num, value = '') {
         const div = document.createElement('div');
         div.className = 'player-item';
@@ -586,9 +602,9 @@
         });
     }
     
-    function initPlayers(playersCount = 2) {
+    function initPlayers(count = 2) {
         playersContainer.innerHTML = '';
-        for (let i = 1; i <= playersCount; i++) {
+        for (let i = 1; i <= count; i++) {
             playersContainer.appendChild(createPlayerRow(i, ''));
         }
     }
@@ -600,74 +616,57 @@
         renumberPlayers();
     });
     
-    // ========== ЗАГРУЗКА ИЗ ХРАНИЛИЩА ==========
-    function loadData() {
+    // ========== ЗАГРУЗКА ИЗ ОБЛАКА ==========
+    async function loadFromCloud() {
         try {
-            const savedPending = localStorage.getItem(STORAGE_PENDING);
-            const savedActive = localStorage.getItem(STORAGE_ACTIVE);
+            statusPanel.innerHTML = "🔄 Загрузка данных из облака...";
+            const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                headers: { 'X-Master-Key': API_KEY }
+            });
+            const data = await response.json();
             
-            if (savedPending) {
-                pendingTeams = JSON.parse(savedPending);
+            if (data && data.record) {
+                pendingTeams = data.record.pendingTeams || [];
+                activeTeams = data.record.activeTeams || [];
+                statusPanel.innerHTML = `✅ Облако синхронизировано! Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
             } else {
-                // Демо-заявка для наглядности
+                // Первый запуск — создаём демо-данные
                 pendingTeams = [
-                    {
-                        id: 1001,
-                        teamName: "Dragon Slayers",
-                        game: "Dota 2",
-                        color: "#f59e0b",
-                        players: ["Alex", "Max", "Ivan"],
-                        registeredAt: new Date().toLocaleString(),
-                        timestamp: Date.now(),
-                        status: 'pending'
-                    },
-                    {
-                        id: 1002,
-                        teamName: "Cyber Knights",
-                        game: "CS2",
-                        color: "#3b82f6",
-                        players: ["John", "Mike", "Tom", "Jerry"],
-                        registeredAt: new Date().toLocaleString(),
-                        timestamp: Date.now(),
-                        status: 'pending'
-                    }
+                    { id: 1001, teamName: "Dragon Slayers", game: "Dota 2", color: "#f59e0b", players: ["Alex", "Max", "Ivan"], registeredAt: new Date().toLocaleString(), status: 'pending' },
+                    { id: 1002, teamName: "Cyber Knights", game: "CS2", color: "#3b82f6", players: ["John", "Mike", "Tom"], registeredAt: new Date().toLocaleString(), status: 'pending' }
                 ];
-                saveData();
-            }
-            
-            if (savedActive) {
-                activeTeams = JSON.parse(savedActive);
-            } else {
                 activeTeams = [
-                    {
-                        id: 1,
-                        teamName: "Team Spirit",
-                        game: "Dota 2",
-                        color: "#10b981",
-                        players: ["Yatoro", "Collapse", "Mira", "Larl", "Miposhka"],
-                        registeredAt: "23.05.2024 14:30",
-                        timestamp: 1716469800000,
-                        status: 'active'
-                    }
+                    { id: 1, teamName: "Team Spirit", game: "Dota 2", color: "#10b981", players: ["Yatoro", "Collapse", "Mira"], registeredAt: "23.05.2024 14:30", status: 'active' }
                 ];
-                saveData();
+                await saveToCloud();
+                statusPanel.innerHTML = "✅ Созданы демо-данные в облаке!";
             }
-            
-            debugPanel.innerHTML = "✅ Данные загружены из локального хранилища.<br>📋 Заявок: " + pendingTeams.length + " | Активных: " + activeTeams.length;
             renderAll();
-        } catch (e) {
-            console.error("Ошибка загрузки:", e);
-            debugPanel.innerHTML = "❌ Ошибка загрузки: " + e.message;
+        } catch (error) {
+            console.error("Ошибка:", error);
+            statusPanel.innerHTML = "⚠️ Ошибка подключения к облаку. Проверьте интернет.";
             pendingTeams = [];
             activeTeams = [];
             renderAll();
         }
     }
     
-    // ========== СОХРАНЕНИЕ ==========
-    function saveData() {
-        localStorage.setItem(STORAGE_PENDING, JSON.stringify(pendingTeams));
-        localStorage.setItem(STORAGE_ACTIVE, JSON.stringify(activeTeams));
+    // ========== СОХРАНЕНИЕ В ОБЛАКО ==========
+    async function saveToCloud() {
+        try {
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': API_KEY
+                },
+                body: JSON.stringify({ pendingTeams: pendingTeams, activeTeams: activeTeams })
+            });
+            statusPanel.innerHTML = `💾 Сохранено в облако! Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
+        } catch (error) {
+            console.error("Ошибка сохранения:", error);
+            statusPanel.innerHTML = "⚠️ Ошибка сохранения в облако";
+        }
     }
     
     // ========== ОТРИСОВКА ==========
@@ -675,7 +674,7 @@
         pendingCountSpan.textContent = pendingTeams.length;
         activeCountSpan.textContent = activeTeams.length;
         
-        // Рендер заявок
+        // Заявки
         if (pendingTeams.length === 0) {
             pendingListDiv.innerHTML = '<div class="empty-teams">📭 Нет новых заявок</div>';
         } else {
@@ -692,16 +691,18 @@
                     <div class="players-list-compact">
                         ${team.players.map(p => `<span class="player-chip">⚡ ${escapeHtml(p)}</span>`).join('')}
                     </div>
+                    ${isAdmin ? `
                     <div class="action-buttons">
                         <button class="accept-btn" onclick="acceptTeam('${team.id}')">✅ ПРИНЯТЬ</button>
                         <button class="reject-btn" onclick="deleteTeam('${team.id}', true)">🗑️ ОТКЛОНИТЬ</button>
                     </div>
+                    ` : ''}
                     <div style="font-size:0.7rem; color:#5a7a9a; margin-top:0.5rem;">📅 ${escapeHtml(team.registeredAt)}</div>
                 </div>
             `).join('');
         }
         
-        // Рендер активных команд
+        // Активные
         if (activeTeams.length === 0) {
             activeListDiv.innerHTML = '<div class="empty-teams">🎯 Нет активных команд</div>';
         } else {
@@ -718,153 +719,127 @@
                     <div class="players-list-compact">
                         ${team.players.map(p => `<span class="player-chip">⚡ ${escapeHtml(p)}</span>`).join('')}
                     </div>
+                    ${isAdmin ? `
                     <div class="action-buttons">
                         <button class="delete-btn" onclick="deleteTeam('${team.id}', false)">🗑️ УДАЛИТЬ</button>
                     </div>
+                    ` : ''}
                     <div style="font-size:0.7rem; color:#5a7a9a; margin-top:0.5rem;">📅 ${escapeHtml(team.registeredAt)}</div>
                 </div>
             `).join('');
         }
+        
+        const adminBtn = document.getElementById('adminLoginBtn');
+        if (adminBtn) {
+            if (isAdmin) {
+                adminBtn.innerHTML = '👑 АДМИН (ВЫ)';
+                adminBtn.style.background = '#2a4a3a';
+            } else {
+                adminBtn.innerHTML = '🔐 Вход для админа';
+                adminBtn.style.background = '#1e3a6b';
+            }
+        }
     }
     
-    // ========== ПРИНЯТЬ КОМАНДУ ==========
-    window.acceptTeam = function(teamId) {
-        const teamIndex = pendingTeams.findIndex(t => t.id == teamId);
-        if (teamIndex !== -1) {
-            const acceptedTeam = { ...pendingTeams[teamIndex], status: 'active' };
-            activeTeams.push(acceptedTeam);
-            pendingTeams.splice(teamIndex, 1);
-            saveData();
-            renderAll();
-            resultMsg.textContent = "✅ Команда принята! Теперь она в активных.";
-            resultMsg.style.color = "#8affc0";
-            setTimeout(() => resultMsg.textContent = "", 2000);
-            debugPanel.innerHTML = "✅ Принята команда. Заявок осталось: " + pendingTeams.length;
+    // ========== ДЕЙСТВИЯ АДМИНА ==========
+    window.acceptTeam = async function(teamId) {
+        if (!isAdmin) { resultMsg.textContent = "⛔ Только администратор!"; return; }
+        const idx = pendingTeams.findIndex(t => t.id == teamId);
+        if (idx !== -1) {
+            const accepted = { ...pendingTeams[idx], status: 'active' };
+            activeTeams.push(accepted);
+            pendingTeams.splice(idx, 1);
+            await saveToCloud();
+            await loadFromCloud();
+            resultMsg.textContent = "✅ Команда принята!";
         }
     };
     
-    // ========== УДАЛИТЬ КОМАНДУ ==========
-    window.deleteTeam = function(teamId, isPending) {
-        if (isPending) {
-            pendingTeams = pendingTeams.filter(t => t.id != teamId);
-        } else {
-            activeTeams = activeTeams.filter(t => t.id != teamId);
-        }
-        saveData();
-        renderAll();
-        resultMsg.textContent = "🗑️ Команда удалена.";
-        resultMsg.style.color = "#ff8a8a";
-        setTimeout(() => resultMsg.textContent = "", 2000);
-        debugPanel.innerHTML = "🗑️ Удалена команда. Заявок: " + pendingTeams.length + " | Активных: " + activeTeams.length;
+    window.deleteTeam = async function(teamId, isPending) {
+        if (!isAdmin) { resultMsg.textContent = "⛔ Только администратор!"; return; }
+        if (isPending) pendingTeams = pendingTeams.filter(t => t.id != teamId);
+        else activeTeams = activeTeams.filter(t => t.id != teamId);
+        await saveToCloud();
+        await loadFromCloud();
+        resultMsg.textContent = "🗑️ Команда удалена!";
     };
     
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
     
-    // ========== ОТПРАВИТЬ ЗАЯВКУ ==========
+    // ========== МОДАЛ ПАРОЛЯ ==========
+    function showPasswordModal() {
+        const modal = document.createElement('div');
+        modal.className = 'password-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h3 style="color:#7bc9ff;">🔐 Вход для админа</h3>
+                <input type="password" id="adminPass" placeholder="Введите пароль">
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button id="modalOk">Войти</button>
+                    <button id="modalCancel">Отмена</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        const input = modal.querySelector('#adminPass');
+        modal.querySelector('#modalOk').onclick = () => {
+            if (input.value === "qwe123asd") {
+                isAdmin = true;
+                resultMsg.textContent = "✅ Добро пожаловать, администратор!";
+                renderAll();
+            } else {
+                resultMsg.textContent = "❌ Неверный пароль!";
+                isAdmin = false;
+                renderAll();
+            }
+            modal.remove();
+        };
+        modal.querySelector('#modalCancel').onclick = () => modal.remove();
+        input.focus();
+    }
+    
+    adminLoginBtn.addEventListener('click', showPasswordModal);
+    
+    // ========== ОТПРАВКА ЗАЯВКИ ==========
     async function sendRequest() {
         const teamName = teamNameInput.value.trim();
-        if (!teamName) {
-            resultMsg.textContent = "❌ Введите название команды!";
-            resultMsg.style.color = "#ff8a8a";
-            return;
-        }
+        if (!teamName) { resultMsg.textContent = "❌ Введите название!"; return; }
         
-        const game = gameSelect.value;
-        
-        const playerInputs = playersContainer.querySelectorAll('.player-input');
         const players = [];
         let empty = false;
-        playerInputs.forEach(inp => {
+        document.querySelectorAll('.player-input').forEach(inp => {
             const val = inp.value.trim();
             if (!val) empty = true;
             else players.push(val);
         });
-        if (empty || players.length === 0) {
-            resultMsg.textContent = "❌ Заполните имена всех игроков!";
-            resultMsg.style.color = "#ff8a8a";
-            return;
-        }
-        
-        const now = new Date();
-        const formattedDate = `${now.toLocaleDateString('ru-RU')} ${now.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'})}`;
+        if (empty || players.length === 0) { resultMsg.textContent = "❌ Заполните имена игроков!"; return; }
         
         const newTeam = {
             id: Date.now() + Math.random() * 10000,
             teamName: teamName,
-            game: game,
+            game: gameSelect.value,
             color: selectedColor,
             players: players,
-            registeredAt: formattedDate,
-            timestamp: now.getTime(),
+            registeredAt: new Date().toLocaleString(),
             status: 'pending'
         };
         
         pendingTeams.push(newTeam);
-        saveData();
-        renderAll();
-        
-        resultMsg.textContent = `📨 Заявка от "${teamName}" отправлена!`;
-        resultMsg.style.color = "#7bc9ff";
-        debugPanel.innerHTML = `📨 Новая заявка: ${teamName}. Всего заявок: ${pendingTeams.length}`;
-        
-        // Очистка формы
+        await saveToCloud();
+        await loadFromCloud();
+        resultMsg.textContent = `📨 Заявка "${teamName}" отправлена!`;
         teamNameInput.value = '';
         initPlayers(2);
-        selectedColor = "#3b82f6";
-        document.querySelectorAll('.color-btn').forEach(btn => {
-            btn.classList.remove('selected');
-            if (btn.getAttribute('data-color') === "#3b82f6") btn.classList.add('selected');
-        });
-        
-        // Переключаемся на вкладку заявок
-        document.querySelector('.tab-btn[data-tab="pending"]').click();
-    }
-    
-    // Тестовая заявка
-    function sendTestRequest() {
-        const testName = "TestTeam_" + Math.floor(Math.random() * 1000);
-        const testPlayers = ["Player1", "Player2", "Player3"];
-        const now = new Date();
-        const formattedDate = `${now.toLocaleDateString('ru-RU')} ${now.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'})}`;
-        
-        const newTeam = {
-            id: Date.now() + Math.random() * 10000,
-            teamName: testName,
-            game: Math.random() > 0.5 ? "Dota 2" : "CS2",
-            color: ["#3b82f6", "#ef4444", "#10b981", "#f59e0b"][Math.floor(Math.random() * 4)],
-            players: testPlayers,
-            registeredAt: formattedDate,
-            timestamp: now.getTime(),
-            status: 'pending'
-        };
-        
-        pendingTeams.push(newTeam);
-        saveData();
-        renderAll();
-        resultMsg.textContent = `📨 Тестовая заявка "${testName}" отправлена!`;
-        resultMsg.style.color = "#7bc9ff";
-        debugPanel.innerHTML = `🧪 Тестовая заявка: ${testName}. Всего заявок: ${pendingTeams.length}`;
-        document.querySelector('.tab-btn[data-tab="pending"]').click();
     }
     
     registerBtn.addEventListener('click', sendRequest);
-    testRequestBtn.addEventListener('click', sendTestRequest);
-    refreshBtn.addEventListener('click', () => {
-        loadData();
-        resultMsg.textContent = "📋 Данные обновлены!";
-        setTimeout(() => resultMsg.textContent = "", 2000);
-    });
+    refreshBtn.addEventListener('click', () => loadFromCloud());
     
-    // Загрузка при старте
-    loadData();
+    // Запуск
+    loadFromCloud();
 </script>
 </body>
 </html>
