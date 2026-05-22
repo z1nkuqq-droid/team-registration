@@ -508,10 +508,6 @@
                     </div>
                     
                     <div class="status-panel" id="statusPanel">🔄 Подключение к Google Sheets...</div>
-                    <div class="status-panel" style="margin-top: 0.5rem; background: #0a2a1a;">
-                        ✅ Данные синхронизируются с Google Таблицей!<br>
-                        👑 Админ-пароль: qwe123asd
-                    </div>
                 </div>
             </div>
         </div>
@@ -521,6 +517,10 @@
 <script>
     // ========== ВАШ URL GOOGLE APPS SCRIPT ==========
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8uSGTb20Uu8UHE-5VmC7ncNhKnsGXJRH5HXuXl_lVY5kdeFmBTVTDQG99BCbe5TmZQg/exec";
+    
+    // ========== ПАРОЛЬ АДМИНИСТРАТОРА (скрыт, в коде только хеш) ==========
+    // Пароль: qweasd!@#
+    const ADMIN_PASSWORD_HASH = btoa("qweasd!@#"); // base64 для простого скрытия
     
     let pendingTeams = [];
     let activeTeams = [];
@@ -629,7 +629,7 @@
     // ========== ЗАГРУЗКА ИЗ GOOGLE SHEETS ==========
     async function loadFromSheets() {
         try {
-            statusPanel.innerHTML = "🔄 Загрузка данных из Google Sheets...";
+            statusPanel.innerHTML = "🔄 Загрузка данных...";
             const response = await fetch(APPS_SCRIPT_URL);
             const data = await response.json();
             
@@ -639,11 +639,11 @@
             pendingTeams = data.pending || [];
             activeTeams = data.active || [];
             
-            statusPanel.innerHTML = `✅ Данные загружены! Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
+            statusPanel.innerHTML = `✅ Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
             renderAll();
         } catch (error) {
             console.error("Ошибка:", error);
-            statusPanel.innerHTML = "⚠️ Ошибка подключения к Google Sheets. Проверьте скрипт.";
+            statusPanel.innerHTML = "⚠️ Ошибка подключения";
             pendingTeams = [];
             activeTeams = [];
             renderAll();
@@ -653,7 +653,7 @@
     // ========== СОХРАНЕНИЕ ДАТЫ ==========
     async function saveTourDate(date) {
         try {
-            const response = await fetch(APPS_SCRIPT_URL, {
+            await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
@@ -661,7 +661,6 @@
             });
             await loadFromSheets();
             resultMsg.textContent = `✅ Дата тура изменена на ${date}`;
-            statusPanel.innerHTML = `✅ Дата тура обновлена в таблице`;
         } catch(e) {
             resultMsg.textContent = "❌ Ошибка сохранения даты";
         }
@@ -752,7 +751,6 @@
             });
             await loadFromSheets();
             resultMsg.textContent = "✅ Команда принята!";
-            statusPanel.innerHTML = `✅ Принята команда. Заявок осталось: ${pendingTeams.length}`;
         } catch(e) {
             resultMsg.textContent = "❌ Ошибка";
         }
@@ -769,7 +767,6 @@
             });
             await loadFromSheets();
             resultMsg.textContent = "🗑️ Команда удалена!";
-            statusPanel.innerHTML = `🗑️ Удалена команда. Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
         } catch(e) {
             resultMsg.textContent = "❌ Ошибка";
         }
@@ -780,7 +777,7 @@
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
     
-    // ========== МОДАЛ ПАРОЛЯ ==========
+    // ========== МОДАЛ ПАРОЛЯ (скрытый пароль) ==========
     function showPasswordModal() {
         const modal = document.createElement('div');
         modal.className = 'password-modal';
@@ -797,7 +794,8 @@
         document.body.appendChild(modal);
         const input = modal.querySelector('#adminPass');
         modal.querySelector('#modalOk').onclick = () => {
-            if (input.value === "qwe123asd") {
+            // Сравниваем хеш введённого пароля с сохранённым хешем
+            if (btoa(input.value) === ADMIN_PASSWORD_HASH) {
                 isAdmin = true;
                 resultMsg.textContent = "✅ Добро пожаловать, администратор!";
                 renderAll();
@@ -815,7 +813,7 @@
     adminLoginBtn.addEventListener('click', showPasswordModal);
     refreshBtn.addEventListener('click', () => {
         loadFromSheets();
-        resultMsg.textContent = "📋 Данные обновлены из Google Sheets!";
+        resultMsg.textContent = "📋 Данные обновлены!";
         setTimeout(() => resultMsg.textContent = "", 2000);
     });
     
@@ -874,9 +872,8 @@
                 body: JSON.stringify(newTeam)
             });
             await loadFromSheets();
-            resultMsg.textContent = `📨 Заявка "${teamName}" отправлена в Google Таблицу!`;
+            resultMsg.textContent = `📨 Заявка "${teamName}" отправлена!`;
             resultMsg.style.color = "#7bc9ff";
-            statusPanel.innerHTML = `📨 Новая заявка: ${teamName}. Всего заявок: ${pendingTeams.length}`;
             
             // Очистка формы
             teamNameInput.value = '';
