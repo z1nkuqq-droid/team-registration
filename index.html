@@ -439,6 +439,17 @@
             border-radius: 2rem;
             cursor: pointer;
         }
+
+        .clear-all-btn {
+            background: #4a1a2a;
+            border: 1px solid #8a3a4a;
+            color: #ffaa88;
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+            cursor: pointer;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -488,7 +499,10 @@
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h3 style="color:#7bc9ff;">⚙️ УПРАВЛЕНИЕ</h3>
-                        <button id="refreshBtn" class="refresh-btn">🔄 ОБНОВИТЬ</button>
+                        <div>
+                            <button id="refreshBtn" class="refresh-btn">🔄 ОБНОВИТЬ</button>
+                            <button id="clearAllBtn" class="clear-all-btn" style="display:none;">🗑️ ОЧИСТИТЬ ВСЁ</button>
+                        </div>
                     </div>
                     <div class="tabs">
                         <button class="tab-btn active" data-tab="pending">⏳ ЗАЯВКИ (<span id="pendingCount">0</span>)</button>
@@ -501,10 +515,6 @@
                         <div id="activeList" class="teams-grid"><div class="empty-teams">Загрузка...</div></div>
                     </div>
                     <div class="status-panel" id="statusPanel">🔄 Подключение к облаку...</div>
-                    <div class="small-note">
-                        🌐 Все данные синхронизируются в облаке!<br>
-                        🔐 Админ: нажмите «Вход для админа» и введите пароль <code style="background:#1a2a3a;padding:2px 6px;border-radius:4px;">qwe123asd</code>
-                    </div>
                 </div>
             </div>
         </div>
@@ -513,14 +523,14 @@
 
 <script>
     // ========== ОБЛАЧНОЕ ХРАНИЛИЩЕ JSONBin.io ==========
-    // Это БЕСПЛАТНЫЙ сервис, данные видны ВСЕМ пользователям!
-    const BIN_ID = "675b9e3aacd3cb34a8b6f1a0";  // Мой публичный бин
+    const BIN_ID = "675b9e3aacd3cb34a8b6f1a0";
     const API_KEY = "$2a$10$XxYzAbCdEfGhIjKlMnOpQqRrSsTtUuVvWwXxYyZ";
     
     let pendingTeams = [];
     let activeTeams = [];
     let selectedColor = "#3b82f6";
     let isAdmin = false;
+    let isFirstLoad = true;
     
     // DOM элементы
     const teamNameInput = document.getElementById('teamName');
@@ -530,6 +540,7 @@
     const registerBtn = document.getElementById('registerBtn');
     const resultMsg = document.getElementById('resultMsg');
     const refreshBtn = document.getElementById('refreshBtn');
+    const clearAllBtn = document.getElementById('clearAllBtn');
     const pendingListDiv = document.getElementById('pendingList');
     const activeListDiv = document.getElementById('activeList');
     const pendingCountSpan = document.getElementById('pendingCount');
@@ -625,29 +636,26 @@
             });
             const data = await response.json();
             
-            if (data && data.record) {
+            if (data && data.record && data.record.pendingTeams !== undefined) {
                 pendingTeams = data.record.pendingTeams || [];
                 activeTeams = data.record.activeTeams || [];
                 statusPanel.innerHTML = `✅ Облако синхронизировано! Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
-            } else {
-                // Первый запуск — создаём демо-данные
-                pendingTeams = [
-                    { id: 1001, teamName: "Dragon Slayers", game: "Dota 2", color: "#f59e0b", players: ["Alex", "Max", "Ivan"], registeredAt: new Date().toLocaleString(), status: 'pending' },
-                    { id: 1002, teamName: "Cyber Knights", game: "CS2", color: "#3b82f6", players: ["John", "Mike", "Tom"], registeredAt: new Date().toLocaleString(), status: 'pending' }
-                ];
-                activeTeams = [
-                    { id: 1, teamName: "Team Spirit", game: "Dota 2", color: "#10b981", players: ["Yatoro", "Collapse", "Mira"], registeredAt: "23.05.2024 14:30", status: 'active' }
-                ];
+            } else if (isFirstLoad) {
+                statusPanel.innerHTML = "📦 Создаём новое хранилище...";
+                pendingTeams = [];
+                activeTeams = [];
                 await saveToCloud();
-                statusPanel.innerHTML = "✅ Созданы демо-данные в облаке!";
+                statusPanel.innerHTML = "✅ Хранилище готово! Теперь можно создавать заявки.";
+                isFirstLoad = false;
+            } else {
+                pendingTeams = [];
+                activeTeams = [];
+                statusPanel.innerHTML = "⚠️ Данные не найдены, созданы пустые списки.";
             }
             renderAll();
         } catch (error) {
             console.error("Ошибка:", error);
             statusPanel.innerHTML = "⚠️ Ошибка подключения к облаку. Проверьте интернет.";
-            pendingTeams = [];
-            activeTeams = [];
-            renderAll();
         }
     }
     
@@ -660,12 +668,32 @@
                     'Content-Type': 'application/json',
                     'X-Master-Key': API_KEY
                 },
-                body: JSON.stringify({ pendingTeams: pendingTeams, activeTeams: activeTeams })
+                body: JSON.stringify({ 
+                    pendingTeams: pendingTeams, 
+                    activeTeams: activeTeams,
+                    lastUpdated: new Date().toISOString()
+                })
             });
-            statusPanel.innerHTML = `💾 Сохранено в облако! Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
+            statusPanel.innerHTML = `💾 Сохранено! Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
         } catch (error) {
             console.error("Ошибка сохранения:", error);
             statusPanel.innerHTML = "⚠️ Ошибка сохранения в облако";
+        }
+    }
+    
+    // ========== ПОЛНАЯ ОЧИСТКА ==========
+    async function clearAllData() {
+        if (!isAdmin) {
+            resultMsg.textContent = "⛔ Только администратор может очистить все данные!";
+            return;
+        }
+        if (confirm("⚠️ ВНИМАНИЕ! Это удалит ВСЕ заявки и ВСЕ команды. Отменить будет невозможно. Продолжить?")) {
+            pendingTeams = [];
+            activeTeams = [];
+            await saveToCloud();
+            await loadFromCloud();
+            resultMsg.textContent = "🗑️ Все данные очищены!";
+            statusPanel.innerHTML = "🧹 Все данные удалены. Хранилище пустое.";
         }
     }
     
@@ -674,7 +702,8 @@
         pendingCountSpan.textContent = pendingTeams.length;
         activeCountSpan.textContent = activeTeams.length;
         
-        // Заявки
+        clearAllBtn.style.display = isAdmin ? 'inline-block' : 'none';
+        
         if (pendingTeams.length === 0) {
             pendingListDiv.innerHTML = '<div class="empty-teams">📭 Нет новых заявок</div>';
         } else {
@@ -702,7 +731,6 @@
             `).join('');
         }
         
-        // Активные
         if (activeTeams.length === 0) {
             activeListDiv.innerHTML = '<div class="empty-teams">🎯 Нет активных команд</div>';
         } else {
@@ -802,6 +830,7 @@
     }
     
     adminLoginBtn.addEventListener('click', showPasswordModal);
+    clearAllBtn.addEventListener('click', clearAllData);
     
     // ========== ОТПРАВКА ЗАЯВКИ ==========
     async function sendRequest() {
@@ -838,7 +867,6 @@
     registerBtn.addEventListener('click', sendRequest);
     refreshBtn.addEventListener('click', () => loadFromCloud());
     
-    // Запуск
     loadFromCloud();
 </script>
 </body>
