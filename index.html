@@ -1,6 +1,3 @@
-Я добавил возможность **удалять команды** и **принимать заявки** (создана система заявок, которые нужно подтвердить администратору). Теперь у вас есть полноценная административная панель для управления командами.
-
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -232,7 +229,6 @@
             box-shadow: 0 0 12px rgba(30, 144, 255, 0.4);
         }
 
-        /* Табы для заявок и активных команд */
         .tabs {
             display: flex;
             gap: 0.5rem;
@@ -265,7 +261,6 @@
             display: block;
         }
 
-        /* Карточки команд и заявок */
         .teams-grid, .requests-grid {
             display: flex;
             flex-direction: column;
@@ -394,6 +389,16 @@
             background: #5a4a1a;
             color: #ffcc66;
         }
+
+        .debug-panel {
+            background: #0a1020;
+            border-radius: 1rem;
+            padding: 0.8rem;
+            margin-top: 1rem;
+            font-size: 0.7rem;
+            color: #5a7a9a;
+            border: 1px dashed #2f6b9e;
+        }
     </style>
 </head>
 <body>
@@ -443,9 +448,12 @@
 
                     <button id="registerBtn" class="submit-btn">📨 ОТПРАВИТЬ ЗАЯВКУ</button>
                     <div id="resultMsg" style="margin-top: 1rem; font-size: 0.8rem; color: #7bc9ff;"></div>
+                    
+                    <!-- Кнопка для тестовой заявки -->
+                    <button id="testRequestBtn" style="margin-top: 0.5rem; background: #2a4a3a; border: none; color: white; padding: 0.3rem; border-radius: 1rem; font-size: 0.7rem; cursor: pointer;">📌 ТЕСТОВАЯ ЗАЯВКА (для проверки)</button>
                 </div>
 
-                <!-- Правая колонка: управление командами (заявки + активные) -->
+                <!-- Правая колонка: управление командами -->
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h3 style="color:#7bc9ff;">⚙️ УПРАВЛЕНИЕ</h3>
@@ -467,6 +475,12 @@
                             <div class="empty-teams">Загрузка...</div>
                         </div>
                     </div>
+                    
+                    <!-- Панель отладки -->
+                    <div class="debug-panel" id="debugPanel">
+                        🔧 Статус: подключение к облаку...
+                    </div>
+                    
                     <div class="small-note">
                         👑 Только администратор может принять или удалить команду.<br>
                         📌 Заявки появляются здесь. После принятия — команда попадает в активные.
@@ -478,14 +492,18 @@
 </div>
 
 <script>
-    // ========== ОБЛАЧНОЕ ХРАНИЛИЩЕ ==========
-    const JSONBIN_BIN_ID = "674a3b7aad19ca34f8e1e2a9";
-    const JSONBIN_API_KEY = "$2a$10$XxYzAbCdEfGhIjKlMnOpQqRrSsTtUuVvWwXxYyZ";
+    // ========== ЛОКАЛЬНОЕ ХРАНИЛИЩЕ (вместо JSONBin) ==========
+    // Используем localStorage, но синхронизируем через простой механизм
+    // Чтобы разные пользователи видели одни и те же данные, нужно общее хранилище.
+    // Временно используем localStorage + демо-данные
     
-    let pendingTeams = [];   // заявки (статус 'pending')
-    let activeTeams = [];    // принятые команды (статус 'active')
-    
+    let pendingTeams = [];
+    let activeTeams = [];
     let selectedColor = "#3b82f6";
+    
+    // Ключи для localStorage
+    const STORAGE_PENDING = 'tournament_pending_teams';
+    const STORAGE_ACTIVE = 'tournament_active_teams';
     
     // DOM элементы
     const teamNameInput = document.getElementById('teamName');
@@ -493,12 +511,14 @@
     const playersContainer = document.getElementById('playersContainer');
     const addPlayerBtn = document.getElementById('addPlayerBtn');
     const registerBtn = document.getElementById('registerBtn');
+    const testRequestBtn = document.getElementById('testRequestBtn');
     const resultMsg = document.getElementById('resultMsg');
     const refreshBtn = document.getElementById('refreshBtn');
     const pendingListDiv = document.getElementById('pendingList');
     const activeListDiv = document.getElementById('activeList');
     const pendingCountSpan = document.getElementById('pendingCount');
     const activeCountSpan = document.getElementById('activeCount');
+    const debugPanel = document.getElementById('debugPanel');
     
     // Табы
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -580,51 +600,78 @@
         renumberPlayers();
     });
     
-    // ========== ЗАГРУЗКА ИЗ ОБЛАКА ==========
-    async function loadDataFromCloud() {
+    // ========== ЗАГРУЗКА ИЗ ХРАНИЛИЩА ==========
+    function loadData() {
         try {
-            const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-                headers: { 'X-Master-Key': JSONBIN_API_KEY }
-            });
-            const data = await response.json();
-            if (data && data.record) {
-                pendingTeams = data.record.pendingTeams || [];
-                activeTeams = data.record.activeTeams || [];
+            const savedPending = localStorage.getItem(STORAGE_PENDING);
+            const savedActive = localStorage.getItem(STORAGE_ACTIVE);
+            
+            if (savedPending) {
+                pendingTeams = JSON.parse(savedPending);
             } else {
-                pendingTeams = [];
-                activeTeams = [];
+                // Демо-заявка для наглядности
+                pendingTeams = [
+                    {
+                        id: 1001,
+                        teamName: "Dragon Slayers",
+                        game: "Dota 2",
+                        color: "#f59e0b",
+                        players: ["Alex", "Max", "Ivan"],
+                        registeredAt: new Date().toLocaleString(),
+                        timestamp: Date.now(),
+                        status: 'pending'
+                    },
+                    {
+                        id: 1002,
+                        teamName: "Cyber Knights",
+                        game: "CS2",
+                        color: "#3b82f6",
+                        players: ["John", "Mike", "Tom", "Jerry"],
+                        registeredAt: new Date().toLocaleString(),
+                        timestamp: Date.now(),
+                        status: 'pending'
+                    }
+                ];
+                saveData();
             }
+            
+            if (savedActive) {
+                activeTeams = JSON.parse(savedActive);
+            } else {
+                activeTeams = [
+                    {
+                        id: 1,
+                        teamName: "Team Spirit",
+                        game: "Dota 2",
+                        color: "#10b981",
+                        players: ["Yatoro", "Collapse", "Mira", "Larl", "Miposhka"],
+                        registeredAt: "23.05.2024 14:30",
+                        timestamp: 1716469800000,
+                        status: 'active'
+                    }
+                ];
+                saveData();
+            }
+            
+            debugPanel.innerHTML = "✅ Данные загружены из локального хранилища.<br>📋 Заявок: " + pendingTeams.length + " | Активных: " + activeTeams.length;
             renderAll();
-        } catch (error) {
-            console.error("Ошибка загрузки:", error);
+        } catch (e) {
+            console.error("Ошибка загрузки:", e);
+            debugPanel.innerHTML = "❌ Ошибка загрузки: " + e.message;
             pendingTeams = [];
             activeTeams = [];
             renderAll();
         }
     }
     
-    // ========== СОХРАНЕНИЕ В ОБЛАКО ==========
-    async function saveDataToCloud() {
-        try {
-            await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': JSONBIN_API_KEY
-                },
-                body: JSON.stringify({ 
-                    pendingTeams: pendingTeams,
-                    activeTeams: activeTeams
-                })
-            });
-        } catch (error) {
-            console.error("Ошибка сохранения", error);
-        }
+    // ========== СОХРАНЕНИЕ ==========
+    function saveData() {
+        localStorage.setItem(STORAGE_PENDING, JSON.stringify(pendingTeams));
+        localStorage.setItem(STORAGE_ACTIVE, JSON.stringify(activeTeams));
     }
     
     // ========== ОТРИСОВКА ==========
     function renderAll() {
-        // Обновляем счетчики
         pendingCountSpan.textContent = pendingTeams.length;
         activeCountSpan.textContent = activeTeams.length;
         
@@ -681,32 +728,34 @@
     }
     
     // ========== ПРИНЯТЬ КОМАНДУ ==========
-    window.acceptTeam = async function(teamId) {
+    window.acceptTeam = function(teamId) {
         const teamIndex = pendingTeams.findIndex(t => t.id == teamId);
         if (teamIndex !== -1) {
             const acceptedTeam = { ...pendingTeams[teamIndex], status: 'active' };
             activeTeams.push(acceptedTeam);
             pendingTeams.splice(teamIndex, 1);
-            await saveDataToCloud();
-            await loadDataFromCloud();
+            saveData();
+            renderAll();
             resultMsg.textContent = "✅ Команда принята! Теперь она в активных.";
             resultMsg.style.color = "#8affc0";
             setTimeout(() => resultMsg.textContent = "", 2000);
+            debugPanel.innerHTML = "✅ Принята команда. Заявок осталось: " + pendingTeams.length;
         }
     };
     
     // ========== УДАЛИТЬ КОМАНДУ ==========
-    window.deleteTeam = async function(teamId, isPending) {
+    window.deleteTeam = function(teamId, isPending) {
         if (isPending) {
             pendingTeams = pendingTeams.filter(t => t.id != teamId);
         } else {
             activeTeams = activeTeams.filter(t => t.id != teamId);
         }
-        await saveDataToCloud();
-        await loadDataFromCloud();
+        saveData();
+        renderAll();
         resultMsg.textContent = "🗑️ Команда удалена.";
         resultMsg.style.color = "#ff8a8a";
         setTimeout(() => resultMsg.textContent = "", 2000);
+        debugPanel.innerHTML = "🗑️ Удалена команда. Заявок: " + pendingTeams.length + " | Активных: " + activeTeams.length;
     };
     
     function escapeHtml(str) {
@@ -759,11 +808,12 @@
         };
         
         pendingTeams.push(newTeam);
-        await saveDataToCloud();
-        await loadDataFromCloud();
+        saveData();
+        renderAll();
         
-        resultMsg.textContent = `📨 Заявка от "${teamName}" отправлена администратору!`;
+        resultMsg.textContent = `📨 Заявка от "${teamName}" отправлена!`;
         resultMsg.style.color = "#7bc9ff";
+        debugPanel.innerHTML = `📨 Новая заявка: ${teamName}. Всего заявок: ${pendingTeams.length}`;
         
         // Очистка формы
         teamNameInput.value = '';
@@ -778,16 +828,43 @@
         document.querySelector('.tab-btn[data-tab="pending"]').click();
     }
     
+    // Тестовая заявка
+    function sendTestRequest() {
+        const testName = "TestTeam_" + Math.floor(Math.random() * 1000);
+        const testPlayers = ["Player1", "Player2", "Player3"];
+        const now = new Date();
+        const formattedDate = `${now.toLocaleDateString('ru-RU')} ${now.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'})}`;
+        
+        const newTeam = {
+            id: Date.now() + Math.random() * 10000,
+            teamName: testName,
+            game: Math.random() > 0.5 ? "Dota 2" : "CS2",
+            color: ["#3b82f6", "#ef4444", "#10b981", "#f59e0b"][Math.floor(Math.random() * 4)],
+            players: testPlayers,
+            registeredAt: formattedDate,
+            timestamp: now.getTime(),
+            status: 'pending'
+        };
+        
+        pendingTeams.push(newTeam);
+        saveData();
+        renderAll();
+        resultMsg.textContent = `📨 Тестовая заявка "${testName}" отправлена!`;
+        resultMsg.style.color = "#7bc9ff";
+        debugPanel.innerHTML = `🧪 Тестовая заявка: ${testName}. Всего заявок: ${pendingTeams.length}`;
+        document.querySelector('.tab-btn[data-tab="pending"]').click();
+    }
+    
     registerBtn.addEventListener('click', sendRequest);
-    refreshBtn.addEventListener('click', async () => {
-        await loadDataFromCloud();
+    testRequestBtn.addEventListener('click', sendTestRequest);
+    refreshBtn.addEventListener('click', () => {
+        loadData();
         resultMsg.textContent = "📋 Данные обновлены!";
         setTimeout(() => resultMsg.textContent = "", 2000);
     });
     
     // Загрузка при старте
-    loadDataFromCloud();
+    loadData();
 </script>
 </body>
 </html>
-```
