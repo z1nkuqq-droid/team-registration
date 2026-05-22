@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Турнирная панель | Google Таблица</title>
+    <title>Турнирная панель | Google Sheets</title>
     <style>
         * {
             margin: 0;
@@ -147,6 +147,10 @@
             border-radius: 2rem;
             font-weight: 600;
             cursor: pointer;
+        }
+
+        .add-btn:hover {
+            background: #134e7a;
         }
 
         .players-list {
@@ -504,6 +508,10 @@
                     </div>
                     
                     <div class="status-panel" id="statusPanel">🔄 Подключение к Google Sheets...</div>
+                    <div class="status-panel" style="margin-top: 0.5rem; background: #0a2a1a;">
+                        ✅ Данные синхронизируются с Google Таблицей!<br>
+                        👑 Админ-пароль: qwe123asd
+                    </div>
                 </div>
             </div>
         </div>
@@ -511,18 +519,8 @@
 </div>
 
 <script>
-    // ========== GOOGLE SHEETS НАСТРОЙКИ ==========
-    // ID вашей таблицы (из ссылки)
-    const SPREADSHEET_ID = "1x43wliSqzl7yVyX1nTIjO4r3JgLFmB3zMkttUs0XQK4";
-    
-    // URL для получения данных в формате JSON (через Google Visualization API)
-    const PENDING_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=pending`;
-    const ACTIVE_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=active`;
-    const SETTINGS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=settings`;
-    
-    // Google Apps Script Web App URL (для записи данных)
-    // ⚠️ ВАЖНО: Вам нужно создать и развернуть скрипт, как описано ниже
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/ЗАМЕНИТЕ_НА_ВАШ_URL/exec";
+    // ========== ВАШ URL GOOGLE APPS SCRIPT ==========
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8uSGTb20Uu8UHE-5VmC7ncNhKnsGXJRH5HXuXl_lVY5kdeFmBTVTDQG99BCbe5TmZQg/exec";
     
     let pendingTeams = [];
     let activeTeams = [];
@@ -628,67 +626,44 @@
         renumberPlayers();
     });
     
-    // ========== ПАРСИНГ JSON ИЗ GOOGLE SHEETS ==========
-    function parseGoogleSheetJSON(jsonText) {
-        // Google возвращает данные в формате: google.visualization.Query.setResponse({...})
-        const jsonMatch = jsonText.match(/google\.visualization\.Query\.setResponse\((.+)\)/);
-        if (jsonMatch) {
-            const data = JSON.parse(jsonMatch[1]);
-            const rows = data.table.rows;
-            const result = [];
-            for (let i = 1; i < rows.length; i++) { // пропускаем заголовок
-                const row = rows[i];
-                if (row.c && row.c[0] && row.c[0].v) {
-                    result.push({
-                        id: row.c[0]?.v || '',
-                        teamName: row.c[1]?.v || '',
-                        game: row.c[2]?.v || '',
-                        color: row.c[3]?.v || '#3b82f6',
-                        players: row.c[4]?.v ? row.c[4].v.split('|') : [],
-                        registeredAt: row.c[5]?.v || ''
-                    });
-                }
-            }
-            return result;
-        }
-        return [];
-    }
-    
-    // ========== ЗАГРУЗКА ДАННЫХ ==========
+    // ========== ЗАГРУЗКА ИЗ GOOGLE SHEETS ==========
     async function loadFromSheets() {
         try {
             statusPanel.innerHTML = "🔄 Загрузка данных из Google Sheets...";
+            const response = await fetch(APPS_SCRIPT_URL);
+            const data = await response.json();
             
-            // Загрузка даты тура
-            const settingsRes = await fetch(SETTINGS_URL);
-            const settingsText = await settingsRes.text();
-            const settingsMatch = settingsText.match(/google\.visualization\.Query\.setResponse\((.+)\)/);
-            if (settingsMatch) {
-                const settingsData = JSON.parse(settingsMatch[1]);
-                if (settingsData.table.rows.length > 1 && settingsData.table.rows[1].c[0]) {
-                    tourDate = settingsData.table.rows[1].c[0].v;
-                    tourDateDisplay.innerHTML = `📅 Дата тура: ${tourDate}`;
-                }
-            }
+            tourDate = data.tourDate || "не установлена";
+            tourDateDisplay.innerHTML = `📅 Дата тура: ${tourDate}`;
             
-            // Загрузка заявок
-            const pendingRes = await fetch(PENDING_URL);
-            const pendingText = await pendingRes.text();
-            pendingTeams = parseGoogleSheetJSON(pendingText);
-            
-            // Загрузка активных команд
-            const activeRes = await fetch(ACTIVE_URL);
-            const activeText = await activeRes.text();
-            activeTeams = parseGoogleSheetJSON(activeText);
+            pendingTeams = data.pending || [];
+            activeTeams = data.active || [];
             
             statusPanel.innerHTML = `✅ Данные загружены! Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
             renderAll();
         } catch (error) {
             console.error("Ошибка:", error);
-            statusPanel.innerHTML = "⚠️ Ошибка подключения. Убедитесь, что таблица опубликована и листы названы правильно (pending, active, settings)";
+            statusPanel.innerHTML = "⚠️ Ошибка подключения к Google Sheets. Проверьте скрипт.";
             pendingTeams = [];
             activeTeams = [];
             renderAll();
+        }
+    }
+    
+    // ========== СОХРАНЕНИЕ ДАТЫ ==========
+    async function saveTourDate(date) {
+        try {
+            const response = await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "setDate", date: date })
+            });
+            await loadFromSheets();
+            resultMsg.textContent = `✅ Дата тура изменена на ${date}`;
+            statusPanel.innerHTML = `✅ Дата тура обновлена в таблице`;
+        } catch(e) {
+            resultMsg.textContent = "❌ Ошибка сохранения даты";
         }
     }
     
@@ -708,7 +683,7 @@
                         <div class="team-name">
                             <span>🎮 ${escapeHtml(team.game)}</span>
                             <strong style="color: ${team.color || '#f59e0b'}">${escapeHtml(team.teamName)}</strong>
-                            <span class="status-badge" style="background:#5a4a1a;color:#ffcc66;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">⏳ заявка</span>
+                            <span style="background:#5a4a1a;color:#ffcc66;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">⏳ заявка</span>
                         </div>
                         <span>${team.players.length} игроков</span>
                     </div>
@@ -717,8 +692,8 @@
                     </div>
                     ${isAdmin ? `
                     <div class="action-buttons">
-                        <button class="accept-btn" onclick="alert('Для принятия заявки настройте Google Apps Script. Подробности в инструкции ниже.')">✅ ПРИНЯТЬ</button>
-                        <button class="reject-btn" onclick="alert('Для отклонения заявки настройте Google Apps Script. Подробности в инструкции ниже.')">🗑️ ОТКЛОНИТЬ</button>
+                        <button class="accept-btn" onclick="acceptTeam('${team.id}')">✅ ПРИНЯТЬ</button>
+                        <button class="reject-btn" onclick="deleteTeam('${team.id}', true)">🗑️ ОТКЛОНИТЬ</button>
                     </div>
                     ` : ''}
                     <div style="font-size:0.7rem; color:#5a7a9a; margin-top:0.5rem;">📅 ${escapeHtml(team.registeredAt)}</div>
@@ -736,7 +711,7 @@
                         <div class="team-name">
                             <span>🎮 ${escapeHtml(team.game)}</span>
                             <strong style="color: ${team.color || '#7bc9ff'}">${escapeHtml(team.teamName)}</strong>
-                            <span class="status-badge" style="background:#1a4a3a;color:#8affc0;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">✅ активна</span>
+                            <span style="background:#1a4a3a;color:#8affc0;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">✅ активна</span>
                         </div>
                         <span>${team.players.length} игроков</span>
                     </div>
@@ -745,7 +720,7 @@
                     </div>
                     ${isAdmin ? `
                     <div class="action-buttons">
-                        <button class="delete-btn" onclick="alert('Для удаления команды настройте Google Apps Script. Подробности в инструкции ниже.')">🗑️ УДАЛИТЬ</button>
+                        <button class="delete-btn" onclick="deleteTeam('${team.id}', false)">🗑️ УДАЛИТЬ</button>
                     </div>
                     ` : ''}
                     <div style="font-size:0.7rem; color:#5a7a9a; margin-top:0.5rem;">📅 ${escapeHtml(team.registeredAt)}</div>
@@ -764,6 +739,41 @@
             }
         }
     }
+    
+    // ========== ДЕЙСТВИЯ АДМИНА ==========
+    window.acceptTeam = async function(teamId) {
+        if (!isAdmin) { resultMsg.textContent = "⛔ Только администратор!"; return; }
+        try {
+            await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "acceptTeam", id: teamId })
+            });
+            await loadFromSheets();
+            resultMsg.textContent = "✅ Команда принята!";
+            statusPanel.innerHTML = `✅ Принята команда. Заявок осталось: ${pendingTeams.length}`;
+        } catch(e) {
+            resultMsg.textContent = "❌ Ошибка";
+        }
+    };
+    
+    window.deleteTeam = async function(teamId, isPending) {
+        if (!isAdmin) { resultMsg.textContent = "⛔ Только администратор!"; return; }
+        try {
+            await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "deleteTeam", id: teamId, isPending: isPending })
+            });
+            await loadFromSheets();
+            resultMsg.textContent = "🗑️ Команда удалена!";
+            statusPanel.innerHTML = `🗑️ Удалена команда. Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
+        } catch(e) {
+            resultMsg.textContent = "❌ Ошибка";
+        }
+    };
     
     function escapeHtml(str) {
         if (!str) return '';
@@ -803,10 +813,14 @@
     }
     
     adminLoginBtn.addEventListener('click', showPasswordModal);
-    refreshBtn.addEventListener('click', () => loadFromSheets());
+    refreshBtn.addEventListener('click', () => {
+        loadFromSheets();
+        resultMsg.textContent = "📋 Данные обновлены из Google Sheets!";
+        setTimeout(() => resultMsg.textContent = "", 2000);
+    });
     
     // Сохранение даты
-    saveDateBtn.addEventListener('click', () => {
+    saveDateBtn.addEventListener('click', async () => {
         if (!isAdmin) {
             resultMsg.textContent = "⛔ Только администратор может менять дату!";
             return;
@@ -814,13 +828,13 @@
         const newDate = newDateInput.value;
         if (newDate) {
             const formattedDate = newDate.split('-').reverse().join('.');
-            alert(`Для сохранения даты "${formattedDate}" в таблицу нужен Google Apps Script. Инструкция ниже.`);
+            await saveTourDate(formattedDate);
         } else {
             resultMsg.textContent = "❌ Выберите дату!";
         }
     });
     
-    // ========== ОТПРАВКА ЗАЯВКИ (напрямую в Google Sheets через POST) ==========
+    // ========== ОТПРАВКА ЗАЯВКИ ==========
     async function sendRequest() {
         const teamName = teamNameInput.value.trim();
         if (!teamName) {
@@ -843,6 +857,7 @@
         }
         
         const newTeam = {
+            action: "addTeam",
             id: Date.now() + Math.random() * 10000,
             teamName: teamName,
             game: gameSelect.value,
@@ -851,27 +866,32 @@
             registeredAt: new Date().toLocaleString()
         };
         
-        // Отправка через Google Apps Script
-        if (APPS_SCRIPT_URL.includes("ЗАМЕНИТЕ")) {
-            resultMsg.textContent = "⚠️ Настройте Google Apps Script. Скопируйте код из инструкции и вставьте в редактор скриптов вашей таблицы.";
-            resultMsg.style.color = "#ffaa44";
-            return;
-        }
-        
         try {
-            const response = await fetch(APPS_SCRIPT_URL, {
+            await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: "addTeam", ...newTeam })
+                body: JSON.stringify(newTeam)
             });
-            resultMsg.textContent = `📨 Заявка "${teamName}" отправлена! (появится в таблице после настройки скрипта)`;
+            await loadFromSheets();
+            resultMsg.textContent = `📨 Заявка "${teamName}" отправлена в Google Таблицу!`;
             resultMsg.style.color = "#7bc9ff";
+            statusPanel.innerHTML = `📨 Новая заявка: ${teamName}. Всего заявок: ${pendingTeams.length}`;
+            
+            // Очистка формы
             teamNameInput.value = '';
             initPlayers(2);
-            await loadFromSheets();
+            selectedColor = "#3b82f6";
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.getAttribute('data-color') === "#3b82f6") btn.classList.add('selected');
+            });
+            
+            // Переключаемся на вкладку заявок
+            document.querySelector('.tab-btn[data-tab="pending"]').click();
         } catch(e) {
-            resultMsg.textContent = "❌ Ошибка отправки. Убедитесь, что Apps Script развёрнут.";
+            resultMsg.textContent = "❌ Ошибка отправки заявки";
+            resultMsg.style.color = "#ff8a8a";
         }
     }
     
