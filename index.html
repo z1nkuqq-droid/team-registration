@@ -5,486 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Турнирная панель | Google Таблица</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        body {
-            background: #0a0a0f;
-            background-image: radial-gradient(circle at 25% 0%, rgba(66, 153, 225, 0.15) 0%, #0a0a0f 95%);
-            min-height: 100vh;
-            padding: 2rem 1.5rem;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .card {
-            background: rgba(10, 10, 18, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1.8rem;
-            border: 1px solid rgba(66, 153, 225, 0.3);
-            overflow: hidden;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, #0d0d15 0%, #0f0f1a 100%);
-            padding: 1.2rem 2rem;
-            border-bottom: 1px solid rgba(66, 153, 225, 0.4);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .card-header h2 {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            font-weight: 700;
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, #60a5fa, #a855f7);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .tour-date {
-            background: rgba(66, 153, 225, 0.2);
-            border: 1px solid rgba(66, 153, 225, 0.4);
-            padding: 0.4rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.85rem;
-            color: #94a3b8;
-        }
-
-        .admin-login-btn {
-            background: rgba(66, 153, 225, 0.15);
-            border: 1px solid rgba(66, 153, 225, 0.4);
-            color: #60a5fa;
-            padding: 0.4rem 1.2rem;
-            border-radius: 2rem;
-            font-size: 0.8rem;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .admin-login-btn:hover {
-            background: rgba(66, 153, 225, 0.3);
-            color: #93c5fd;
-        }
-
-        .card-body {
-            padding: 2rem;
-        }
-
-        .two-columns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-
-        @media (max-width: 900px) {
-            .two-columns {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #94a3b8;
-            font-size: 0.85rem;
-        }
-
-        .team-name-input, select {
-            width: 100%;
-            background: #0f0f17;
-            border: 1.5px solid #1e293b;
-            border-radius: 1rem;
-            padding: 0.85rem 1rem;
-            font-size: 1rem;
-            color: #e2e8f0;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .team-name-input:focus, select:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        .players-section {
-            background: rgba(15, 15, 23, 0.7);
-            border-radius: 1.2rem;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid #1e293b;
-        }
-
-        .players-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .add-btn {
-            background: rgba(59, 130, 246, 0.15);
-            border: 1px solid #3b82f6;
-            color: #60a5fa;
-            padding: 0.4rem 1.2rem;
-            border-radius: 2rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .add-btn:hover {
-            background: rgba(59, 130, 246, 0.3);
-        }
-
-        .players-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-        }
-
-        .player-item {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            background: #0a0a10;
-            padding: 0.4rem 1rem;
-            border-radius: 2rem;
-            border: 1px solid #1e293b;
-        }
-
-        .player-number {
-            background: #1e293b;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 30px;
-            font-weight: bold;
-            color: #60a5fa;
-            font-size: 0.75rem;
-        }
-
-        .player-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 0.6rem 0;
-            color: #e2e8f0;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        .remove-player {
-            background: #2a1a2a;
-            border: none;
-            color: #f87171;
-            width: 28px;
-            height: 28px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .color-options {
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            margin-top: 0.5rem;
-        }
-
-        .color-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 40px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: 0.1s;
-        }
-
-        .color-btn.selected {
-            border-color: white;
-            box-shadow: 0 0 0 2px #3b82f6;
-            transform: scale(1.05);
-        }
-
-        .submit-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            border: none;
-            color: white;
-            font-weight: 700;
-            padding: 0.9rem;
-            border-radius: 3rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-top: 1rem;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-        }
-
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #1e293b;
-            padding-bottom: 0.5rem;
-        }
-
-        .tab-btn {
-            background: transparent;
-            border: none;
-            color: #64748b;
-            padding: 0.5rem 1.2rem;
-            border-radius: 2rem;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .tab-btn.active {
-            background: #1e293b;
-            color: #60a5fa;
-        }
-
-        .filter-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #1e293b;
-        }
-
-        .filter-btn {
-            background: #0f0f17;
-            border: 1px solid #1e293b;
-            color: #94a3b8;
-            padding: 0.3rem 0.8rem;
-            border-radius: 2rem;
-            font-size: 0.7rem;
-            cursor: pointer;
-        }
-
-        .filter-btn.active {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .teams-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .request-card, .team-card-item {
-            background: #0f0f17;
-            border-radius: 1.2rem;
-            padding: 1rem 1.2rem;
-            border-left: 4px solid;
-        }
-
-        .team-name-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            flex-wrap: wrap;
-            margin-bottom: 0.6rem;
-        }
-
-        .team-name {
-            font-size: 1.2rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            color: #e2e8f0;
-        }
-
-        .players-list-compact {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-top: 0.5rem;
-        }
-
-        .player-chip {
-            background: #0a0a10;
-            border-radius: 2rem;
-            padding: 0.2rem 0.7rem;
-            font-size: 0.75rem;
-            color: #94a3b8;
-            border: 1px solid #1e293b;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.8rem;
-        }
-
-        .accept-btn {
-            background: #22c55e;
-            border: none;
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 1.5rem;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .delete-btn, .reject-btn {
-            background: #ef4444;
-            border: none;
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 1.5rem;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .empty-teams {
-            text-align: center;
-            padding: 2rem;
-            color: #64748b;
-            background: #0f0f17;
-            border-radius: 1.2rem;
-            border: 1px dashed #1e293b;
-        }
-
-        .refresh-btn {
-            background: #0f0f17;
-            border: 1px solid #1e293b;
-            color: #60a5fa;
-            padding: 0.5rem 1.2rem;
-            border-radius: 2rem;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .status-panel {
-            background: #0f0f17;
-            border-radius: 1rem;
-            padding: 0.8rem;
-            margin-top: 1rem;
-            font-size: 0.7rem;
-            color: #64748b;
-            border: 1px solid #1e293b;
-        }
-
-        .date-edit-area {
-            margin-top: 1rem;
-            padding: 0.8rem;
-            background: #0f0f17;
-            border-radius: 1rem;
-            border: 1px solid #1e293b;
-            display: none;
-        }
-
-        .date-edit-area input {
-            background: #0a0a10;
-            border: 1px solid #1e293b;
-            border-radius: 0.8rem;
-            padding: 0.5rem;
-            color: #e2e8f0;
-        }
-
-        .date-edit-area button {
-            background: #3b82f6;
-            border: none;
-            color: white;
-            padding: 0.3rem 1rem;
-            border-radius: 1rem;
-            cursor: pointer;
-        }
-
-        .password-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: #0f0f17;
-            border: 1px solid #3b82f6;
-            border-radius: 1.5rem;
-            padding: 2rem;
-            width: 320px;
-            text-align: center;
-        }
-
-        .modal-content h3 {
-            color: #60a5fa;
-        }
-
-        .modal-content input {
-            width: 100%;
-            padding: 0.8rem;
-            margin: 1rem 0;
-            background: #0a0a10;
-            border: 1px solid #1e293b;
-            border-radius: 1rem;
-            color: white;
-            font-size: 1rem;
-        }
-
-        .modal-content button {
-            background: #3b82f6;
-            border: none;
-            color: white;
-            padding: 0.6rem 1.5rem;
-            border-radius: 2rem;
-            cursor: pointer;
-        }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;}
+        body{background:#0a0a0f;padding:2rem 1.5rem;}
+        .container{max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:2rem;}
+        .card{background:rgba(10,10,18,0.95);border-radius:1.8rem;border:1px solid rgba(66,153,225,0.3);overflow:hidden;}
+        .card-header{background:linear-gradient(135deg,#0d0d15,#0f0f1a);padding:1.2rem 2rem;border-bottom:1px solid rgba(66,153,225,0.4);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+        .card-header h2{background:linear-gradient(135deg,#60a5fa,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent;}
+        .tour-date{background:rgba(66,153,225,0.2);border:1px solid rgba(66,153,225,0.4);padding:0.4rem 1rem;border-radius:2rem;font-size:0.85rem;color:#94a3b8;}
+        .admin-login-btn{background:rgba(66,153,225,0.15);border:1px solid rgba(66,153,225,0.4);color:#60a5fa;padding:0.4rem 1.2rem;border-radius:2rem;cursor:pointer;}
+        .card-body{padding:2rem;}
+        .two-columns{display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+        @media(max-width:900px){.two-columns{grid-template-columns:1fr;}}
+        .input-group{margin-bottom:1.5rem;}
+        label{display:block;font-weight:600;margin-bottom:0.5rem;color:#94a3b8;font-size:0.85rem;}
+        .team-name-input,select{width:100%;background:#0f0f17;border:1.5px solid #1e293b;border-radius:1rem;padding:0.85rem 1rem;font-size:1rem;color:#e2e8f0;outline:none;}
+        .team-name-input:focus,select:focus{border-color:#3b82f6;}
+        .players-section{background:rgba(15,15,23,0.7);border-radius:1.2rem;padding:1rem;margin-bottom:1.5rem;border:1px solid #1e293b;}
+        .players-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;}
+        .add-btn{background:rgba(59,130,246,0.15);border:1px solid #3b82f6;color:#60a5fa;padding:0.4rem 1.2rem;border-radius:2rem;cursor:pointer;}
+        .players-list{display:flex;flex-direction:column;gap:0.6rem;}
+        .player-item{display:flex;align-items:center;gap:0.6rem;background:#0a0a10;padding:0.4rem 1rem;border-radius:2rem;border:1px solid #1e293b;}
+        .player-number{background:#1e293b;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:30px;color:#60a5fa;}
+        .player-input{flex:1;background:transparent;border:none;padding:0.6rem 0;color:#e2e8f0;outline:none;}
+        .remove-player{background:#2a1a2a;border:none;color:#f87171;width:28px;height:28px;border-radius:30px;cursor:pointer;}
+        .color-options{display:flex;gap:0.8rem;flex-wrap:wrap;margin-top:0.5rem;}
+        .color-btn{width:40px;height:40px;border-radius:40px;cursor:pointer;border:2px solid transparent;}
+        .color-btn.selected{border-color:white;box-shadow:0 0 0 2px #3b82f6;}
+        .submit-btn{width:100%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;color:white;font-weight:700;padding:0.9rem;border-radius:3rem;font-size:1rem;cursor:pointer;margin-top:1rem;}
+        .tabs{display:flex;gap:0.5rem;margin-bottom:1rem;border-bottom:1px solid #1e293b;padding-bottom:0.5rem;}
+        .tab-btn{background:transparent;border:none;color:#64748b;padding:0.5rem 1.2rem;border-radius:2rem;cursor:pointer;}
+        .tab-btn.active{background:#1e293b;color:#60a5fa;}
+        .filter-bar{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid #1e293b;}
+        .filter-btn{background:#0f0f17;border:1px solid #1e293b;color:#94a3b8;padding:0.3rem 0.8rem;border-radius:2rem;font-size:0.7rem;cursor:pointer;}
+        .filter-btn.active{background:#3b82f6;color:white;}
+        .tab-content{display:none;}
+        .tab-content.active{display:block;}
+        .teams-grid{display:flex;flex-direction:column;gap:1rem;max-height:500px;overflow-y:auto;}
+        .request-card,.team-card-item{background:#0f0f17;border-radius:1.2rem;padding:1rem 1.2rem;border-left:4px solid;}
+        .team-name-header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;margin-bottom:0.6rem;}
+        .team-name{font-size:1.2rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:#e2e8f0;}
+        .players-list-compact{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem;}
+        .player-chip{background:#0a0a10;border-radius:2rem;padding:0.2rem 0.7rem;font-size:0.75rem;color:#94a3b8;border:1px solid #1e293b;}
+        .action-buttons{display:flex;gap:0.5rem;margin-top:0.8rem;}
+        .accept-btn{background:#22c55e;border:none;color:white;padding:0.3rem 0.8rem;border-radius:1.5rem;cursor:pointer;}
+        .delete-btn,.reject-btn{background:#ef4444;border:none;color:white;padding:0.3rem 0.8rem;border-radius:1.5rem;cursor:pointer;}
+        .empty-teams{text-align:center;padding:2rem;color:#64748b;background:#0f0f17;border-radius:1.2rem;border:1px dashed #1e293b;}
+        .refresh-btn{background:#0f0f17;border:1px solid #1e293b;color:#60a5fa;padding:0.5rem 1.2rem;border-radius:2rem;cursor:pointer;}
+        .status-panel{background:#0f0f17;border-radius:1rem;padding:0.8rem;margin-top:1rem;font-size:0.7rem;color:#64748b;border:1px solid #1e293b;}
+        .date-edit-area{margin-top:1rem;padding:0.8rem;background:#0f0f17;border-radius:1rem;border:1px solid #1e293b;display:none;}
+        .date-edit-area input{background:#0a0a10;border:1px solid #1e293b;border-radius:0.8rem;padding:0.5rem;color:#e2e8f0;}
+        .date-edit-area button{background:#3b82f6;border:none;color:white;padding:0.3rem 1rem;border-radius:1rem;cursor:pointer;}
+        .password-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:1000;}
+        .modal-content{background:#0f0f17;border:1px solid #3b82f6;border-radius:1.5rem;padding:2rem;width:320px;text-align:center;}
+        .modal-content input{width:100%;padding:0.8rem;margin:1rem 0;background:#0a0a10;border:1px solid #1e293b;border-radius:1rem;color:white;}
+        .modal-content button{background:#3b82f6;border:none;color:white;padding:0.6rem 1.5rem;border-radius:2rem;cursor:pointer;}
     </style>
 </head>
 <body>
@@ -492,7 +66,7 @@
     <div class="card">
         <div class="card-header">
             <h2>⚔️ ТУРНИРНАЯ ПАНЕЛЬ</h2>
-            <div style="display: flex; gap: 1rem; align-items: center;">
+            <div style="display:flex;gap:1rem;align-items:center;">
                 <div class="tour-date" id="tourDateDisplay">📅 Дата тура: --</div>
                 <button id="adminLoginBtn" class="admin-login-btn">🔐 Вход для админа</button>
             </div>
@@ -500,82 +74,21 @@
         <div class="card-body">
             <div class="two-columns">
                 <div>
-                    <h3 style="color: #60a5fa; margin-bottom: 1rem;">📝 НОВАЯ ЗАЯВКА</h3>
-                    <div class="input-group">
-                        <label>🏆 НАЗВАНИЕ КОМАНДЫ</label>
-                        <input type="text" id="teamName" class="team-name-input" placeholder="Dragon Slayers">
-                    </div>
-                    <div class="input-group">
-                        <label>🎮 ИГРА</label>
-                        <select id="gameSelect">
-                            <option value="Dota 2">🎮 Dota 2</option>
-                            <option value="CS2">🎯 CS2</option>
-                            <option value="Fortnite">🔫 Fortnite</option>
-                            <option value="Brawl Stars">⭐ Brawl Stars</option>
-                            <option value="Valorant">💣 Valorant</option>
-                            <option value="Clash Royale">👑 Clash Royale</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>🎨 ЦВЕТ КОМАНДЫ</label>
-                        <div class="color-options" id="colorOptions">
-                            <div class="color-btn" style="background: #3b82f6;" data-color="#3b82f6"></div>
-                            <div class="color-btn" style="background: #ef4444;" data-color="#ef4444"></div>
-                            <div class="color-btn" style="background: #10b981;" data-color="#10b981"></div>
-                            <div class="color-btn" style="background: #f59e0b;" data-color="#f59e0b"></div>
-                            <div class="color-btn" style="background: #8b5cf6;" data-color="#8b5cf6"></div>
-                            <div class="color-btn" style="background: #ec489a;" data-color="#ec489a"></div>
-                        </div>
-                    </div>
-                    <div class="players-section">
-                        <div class="players-header">
-                            <label>👥 ИГРОКИ</label>
-                            <button type="button" id="addPlayerBtn" class="add-btn">+ Добавить</button>
-                        </div>
-                        <div id="playersContainer" class="players-list"></div>
-                        <small style="color: #64748b; font-size: 0.7rem;">▸ Минимум 1 игрок</small>
-                    </div>
+                    <h3 style="color:#60a5fa;margin-bottom:1rem;">📝 НОВАЯ ЗАЯВКА</h3>
+                    <div class="input-group"><label>🏆 НАЗВАНИЕ КОМАНДЫ</label><input type="text" id="teamName" placeholder="Dragon Slayers"></div>
+                    <div class="input-group"><label>🎮 ИГРА</label><select id="gameSelect"><option value="Dota 2">🎮 Dota 2</option><option value="CS2">🎯 CS2</option><option value="Fortnite">🔫 Fortnite</option><option value="Brawl Stars">⭐ Brawl Stars</option><option value="Valorant">💣 Valorant</option><option value="Clash Royale">👑 Clash Royale</option></select></div>
+                    <div class="input-group"><label>🎨 ЦВЕТ КОМАНДЫ</label><div class="color-options" id="colorOptions"><div class="color-btn" style="background:#3b82f6" data-color="#3b82f6"></div><div class="color-btn" style="background:#ef4444" data-color="#ef4444"></div><div class="color-btn" style="background:#10b981" data-color="#10b981"></div><div class="color-btn" style="background:#f59e0b" data-color="#f59e0b"></div><div class="color-btn" style="background:#8b5cf6" data-color="#8b5cf6"></div><div class="color-btn" style="background:#ec489a" data-color="#ec489a"></div></div></div>
+                    <div class="players-section"><div class="players-header"><label>👥 ИГРОКИ</label><button type="button" id="addPlayerBtn" class="add-btn">+ Добавить</button></div><div id="playersContainer" class="players-list"></div></div>
                     <button id="registerBtn" class="submit-btn">📨 ОТПРАВИТЬ ЗАЯВКУ</button>
-                    <div id="resultMsg" style="margin-top: 1rem; font-size: 0.8rem; color: #60a5fa;"></div>
+                    <div id="resultMsg" style="margin-top:1rem;font-size:0.8rem;"></div>
                 </div>
-
                 <div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                        <h3 style="color: #60a5fa;">⚙️ УПРАВЛЕНИЕ</h3>
-                        <button id="refreshBtn" class="refresh-btn">🔄 ОБНОВИТЬ</button>
-                    </div>
-                    <div class="tabs">
-                        <button class="tab-btn active" data-tab="pending">⏳ ЗАЯВКИ (<span id="pendingCount">0</span>)</button>
-                        <button class="tab-btn" data-tab="active">✅ АКТИВНЫЕ (<span id="activeCount">0</span>)</button>
-                    </div>
-                    
-                    <div id="filterPanel" style="display: none;">
-                        <div class="filter-bar" id="filterBar">
-                            <button class="filter-btn active" data-game="all">🎮 ВСЕ ИГРЫ</button>
-                            <button class="filter-btn" data-game="Dota 2">Dota 2</button>
-                            <button class="filter-btn" data-game="CS2">CS2</button>
-                            <button class="filter-btn" data-game="Fortnite">Fortnite</button>
-                            <button class="filter-btn" data-game="Brawl Stars">Brawl Stars</button>
-                            <button class="filter-btn" data-game="Valorant">Valorant</button>
-                            <button class="filter-btn" data-game="Clash Royale">Clash Royale</button>
-                        </div>
-                    </div>
-                    
-                    <div id="pendingTab" class="tab-content active">
-                        <div id="pendingList" class="teams-grid"><div class="empty-teams">Загрузка...</div></div>
-                    </div>
-                    <div id="activeTab" class="tab-content">
-                        <div id="activeList" class="teams-grid"><div class="empty-teams">Загрузка...</div></div>
-                    </div>
-                    
-                    <div id="dateEditArea" class="date-edit-area">
-                        <label>📅 Изменить дату тура:</label>
-                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                            <input type="date" id="newDateInput">
-                            <button id="saveDateBtn">Сохранить</button>
-                        </div>
-                    </div>
-                    
+                    <div style="display:flex;justify-content:space-between;margin-bottom:1rem;"><h3 style="color:#60a5fa;">⚙️ УПРАВЛЕНИЕ</h3><button id="refreshBtn" class="refresh-btn">🔄 ОБНОВИТЬ</button></div>
+                    <div class="tabs"><button class="tab-btn active" data-tab="pending">⏳ ЗАЯВКИ (<span id="pendingCount">0</span>)</button><button class="tab-btn" data-tab="active">✅ АКТИВНЫЕ (<span id="activeCount">0</span>)</button></div>
+                    <div id="filterPanel" style="display:none;"><div class="filter-bar" id="filterBar"><button class="filter-btn active" data-game="all">🎮 ВСЕ ИГРЫ</button><button class="filter-btn" data-game="Dota 2">Dota 2</button><button class="filter-btn" data-game="CS2">CS2</button><button class="filter-btn" data-game="Fortnite">Fortnite</button><button class="filter-btn" data-game="Brawl Stars">Brawl Stars</button><button class="filter-btn" data-game="Valorant">Valorant</button><button class="filter-btn" data-game="Clash Royale">Clash Royale</button></div></div>
+                    <div id="pendingTab" class="tab-content active"><div id="pendingList" class="teams-grid"><div class="empty-teams">Загрузка...</div></div></div>
+                    <div id="activeTab" class="tab-content"><div id="activeList" class="teams-grid"><div class="empty-teams">Загрузка...</div></div></div>
+                    <div id="dateEditArea" class="date-edit-area"><label>📅 Изменить дату тура:</label><div style="display:flex;gap:0.5rem;margin-top:0.5rem;"><input type="date" id="newDateInput"><button id="saveDateBtn">Сохранить</button></div></div>
                     <div class="status-panel" id="statusPanel">🔄 Подключение...</div>
                 </div>
             </div>
@@ -584,18 +97,11 @@
 </div>
 
 <script>
-    // ========== GOOGLE APPS SCRIPT URL ==========
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8uSGTb20Uu8UHE-5VmC7ncNhKnsGXJRH5HXuXl_lVY5kdeFmBTVTDQG99BCbe5TmZQg/exec";
     const ADMIN_PASSWORD_HASH = btoa("qweasd!@#");
     
-    let pendingTeams = [];
-    let activeTeams = [];
-    let tourDate = "";
-    let selectedColor = "#3b82f6";
-    let isAdmin = false;
-    let currentGameFilter = "all";
+    let pendingTeams = [], activeTeams = [], tourDate = "", selectedColor = "#3b82f6", isAdmin = false, currentGameFilter = "all";
     
-    // DOM элементы
     const teamNameInput = document.getElementById('teamName');
     const gameSelect = document.getElementById('gameSelect');
     const playersContainer = document.getElementById('playersContainer');
@@ -616,325 +122,45 @@
     const filterPanel = document.getElementById('filterPanel');
     const filterBar = document.getElementById('filterBar');
     
-    function getGameEmoji(game) {
-        const emojis = {"Dota 2":"🎮","CS2":"🎯","Fortnite":"🔫","Brawl Stars":"⭐","Valorant":"💣","Clash Royale":"👑"};
-        return emojis[game] || "🎮";
-    }
+    function getGameEmoji(g){const e={"Dota 2":"🎮","CS2":"🎯","Fortnite":"🔫","Brawl Stars":"⭐","Valorant":"💣","Clash Royale":"👑"};return e[g]||"🎮";}
     
-    // Табы
     const tabBtns = document.querySelectorAll('.tab-btn');
     const pendingTab = document.getElementById('pendingTab');
     const activeTab = document.getElementById('activeTab');
+    tabBtns.forEach(btn=>{btn.addEventListener('click',()=>{const tabId=btn.getAttribute('data-tab');tabBtns.forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(tabId==='pending'){pendingTab.classList.add('active');activeTab.classList.remove('active');}else{pendingTab.classList.remove('active');activeTab.classList.add('active');}});});
     
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabId = btn.getAttribute('data-tab');
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            if (tabId === 'pending') {
-                pendingTab.classList.add('active');
-                activeTab.classList.remove('active');
-            } else {
-                pendingTab.classList.remove('active');
-                activeTab.classList.add('active');
-            }
-        });
-    });
+    function setupFilters(){const btns=filterBar.querySelectorAll('.filter-btn');btns.forEach(btn=>{btn.addEventListener('click',()=>{btns.forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentGameFilter=btn.getAttribute('data-game');renderAll();});});}
     
-    function setupFilters() {
-        const filterBtns = filterBar.querySelectorAll('.filter-btn');
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentGameFilter = btn.getAttribute('data-game');
-                renderAll();
-            });
-        });
-    }
+    document.querySelectorAll('.color-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.color-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');selectedColor=btn.getAttribute('data-color');});});document.querySelector('.color-btn').classList.add('selected');
     
-    // Цвета
-    document.querySelectorAll('.color-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            selectedColor = btn.getAttribute('data-color');
-        });
-    });
-    document.querySelector('.color-btn').classList.add('selected');
+    function createPlayerRow(num,val=''){const div=document.createElement('div');div.className='player-item';const span=document.createElement('span');span.className='player-number';span.textContent=num;const input=document.createElement('input');input.type='text';input.className='player-input';input.placeholder=`Игрок ${num}`;input.value=val;const removeBtn=document.createElement('button');removeBtn.className='remove-player';removeBtn.textContent='✕';removeBtn.onclick=()=>{div.remove();renumberPlayers();};div.appendChild(span);div.appendChild(input);div.appendChild(removeBtn);return div;}
+    function renumberPlayers(){const rows=playersContainer.querySelectorAll('.player-item');rows.forEach((row,idx)=>{row.querySelector('.player-number').textContent=idx+1;row.querySelector('.player-input').placeholder=`Игрок ${idx+1}`;});}
+    function initPlayers(count=2){playersContainer.innerHTML='';for(let i=1;i<=count;i++)playersContainer.appendChild(createPlayerRow(i,''));}initPlayers(2);
+    addPlayerBtn.addEventListener('click',()=>{playersContainer.appendChild(createPlayerRow(playersContainer.children.length+1,''));renumberPlayers();});
     
-    // Игроки
-    function createPlayerRow(num, value = '') {
-        const div = document.createElement('div');
-        div.className = 'player-item';
-        const span = document.createElement('span');
-        span.className = 'player-number';
-        span.textContent = num;
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'player-input';
-        input.placeholder = `Игрок ${num}`;
-        input.value = value;
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'remove-player';
-        removeBtn.textContent = '✕';
-        removeBtn.onclick = () => { div.remove(); renumberPlayers(); };
-        div.appendChild(span);
-        div.appendChild(input);
-        div.appendChild(removeBtn);
-        return div;
-    }
+    async function loadFromSheets(){try{statusPanel.innerHTML="🔄 Загрузка...";const callbackName='jsonp_'+Date.now();const script=document.createElement('script');const promise=new Promise((resolve,reject)=>{window[callbackName]=data=>{delete window[callbackName];resolve(data);};script.onerror=()=>{delete window[callbackName];reject();};});script.src=`${APPS_SCRIPT_URL}?callback=${callbackName}&_=${Date.now()}`;document.head.appendChild(script);const data=await promise;document.head.removeChild(script);tourDate=data.tourDate||"не установлена";tourDateDisplay.innerHTML=`📅 Дата тура: ${tourDate}`;pendingTeams=data.pending||[];activeTeams=data.active||[];statusPanel.innerHTML=`✅ Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;renderAll();}catch(e){statusPanel.innerHTML="⚠️ Ошибка";pendingTeams=[];activeTeams=[];renderAll();}}
     
-    function renumberPlayers() {
-        const rows = playersContainer.querySelectorAll('.player-item');
-        rows.forEach((row, idx) => {
-            row.querySelector('.player-number').textContent = idx + 1;
-            row.querySelector('.player-input').placeholder = `Игрок ${idx + 1}`;
-        });
-    }
+    async function sendRequestToScript(params){return new Promise((resolve)=>{const img=new Image();const url=APPS_SCRIPT_URL+'?'+new URLSearchParams(params).toString()+'&_='+Date.now();img.src=url;img.onload=()=>resolve();img.onerror=()=>resolve();});}
     
-    function initPlayers(count = 2) {
-        playersContainer.innerHTML = '';
-        for (let i = 1; i <= count; i++) playersContainer.appendChild(createPlayerRow(i, ''));
-    }
-    initPlayers(2);
-    addPlayerBtn.addEventListener('click', () => {
-        playersContainer.appendChild(createPlayerRow(playersContainer.children.length + 1, ''));
-        renumberPlayers();
-    });
+    async function callScript(action,data={}){const params={action:action,...data};if(data.players)params.players=JSON.stringify(data.players);await sendRequestToScript(params);}
     
-    // ========== ЗАГРУЗКА ДАННЫХ (JSONP) ==========
-    async function loadFromSheets() {
-        try {
-            statusPanel.innerHTML = "🔄 Загрузка данных...";
-            const callbackName = 'jsonp_callback_' + Date.now();
-            const script = document.createElement('script');
-            const promise = new Promise((resolve, reject) => {
-                window[callbackName] = (data) => {
-                    delete window[callbackName];
-                    resolve(data);
-                };
-                script.onerror = () => {
-                    delete window[callbackName];
-                    reject(new Error('Ошибка'));
-                };
-            });
-            script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&_=${Date.now()}`;
-            document.head.appendChild(script);
-            const data = await promise;
-            document.head.removeChild(script);
-            
-            tourDate = data.tourDate || "не установлена";
-            tourDateDisplay.innerHTML = `📅 Дата тура: ${tourDate}`;
-            pendingTeams = data.pending || [];
-            activeTeams = data.active || [];
-            
-            statusPanel.innerHTML = `✅ Заявок: ${pendingTeams.length} | Активных: ${activeTeams.length}`;
-            renderAll();
-        } catch (error) {
-            console.error("Ошибка:", error);
-            statusPanel.innerHTML = "⚠️ Ошибка подключения";
-            pendingTeams = [];
-            activeTeams = [];
-            renderAll();
-        }
-    }
+    async function saveTourDate(date){await callScript("setDate",{date});await loadFromSheets();resultMsg.textContent=`✅ Дата тура изменена на ${date}`;setTimeout(()=>resultMsg.textContent="",3000);}
     
-    // ========== ОТПРАВКА ЗАЯВКИ (через Image - обход CORS) ==========
-    function sendViaImage(payload) {
-        return new Promise((resolve) => {
-            const img = new Image();
-            const url = APPS_SCRIPT_URL + '?payload=' + encodeURIComponent(JSON.stringify(payload)) + '&_=' + Date.now();
-            img.src = url;
-            img.onload = () => resolve({ status: "ok" });
-            img.onerror = () => resolve({ status: "ok" }); // всё равно считаем успехом
-        });
-    }
+    function renderAll(){let filtered=pendingTeams;if(currentGameFilter!=="all")filtered=pendingTeams.filter(t=>t.game===currentGameFilter);pendingCountSpan.textContent=pendingTeams.length;activeCountSpan.textContent=activeTeams.length;dateEditArea.style.display=isAdmin?'block':'none';filterPanel.style.display=isAdmin?'block':'none';if(filtered.length===0){pendingListDiv.innerHTML=pendingTeams.length===0?'<div class="empty-teams">📭 Нет заявок</div>':'<div class="empty-teams">🎮 Нет заявок по игре "'+currentGameFilter+'"</div>';}else{pendingListDiv.innerHTML=filtered.map(t=>`<div class="request-card" style="border-left-color:${t.color||'#f59e0b'}"><div class="team-name-header"><div class="team-name"><span>${getGameEmoji(t.game)} ${escapeHtml(t.game)}</span><strong style="color:${t.color||'#f59e0b'}">${escapeHtml(t.teamName)}</strong><span style="background:#1e293b;color:#94a3b8;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">⏳ заявка</span></div><span>${t.players.length} игроков</span></div><div class="players-list-compact">${t.players.map(p=>`<span class="player-chip">⚡ ${escapeHtml(p)}</span>`).join('')}</div>${isAdmin?`<div class="action-buttons"><button class="accept-btn" onclick="acceptTeam('${t.id}')">✅ ПРИНЯТЬ</button><button class="reject-btn" onclick="deleteTeam('${t.id}',true)">🗑️ ОТКЛОНИТЬ</button></div>`:''}<div style="font-size:0.7rem;color:#64748b;">📅 ${escapeHtml(t.registeredAt)}</div></div>`).join('');}if(activeTeams.length===0){activeListDiv.innerHTML='<div class="empty-teams">🎯 Нет активных команд</div>';}else{activeListDiv.innerHTML=activeTeams.map(t=>`<div class="team-card-item" style="border-left-color:${t.color||'#3b82f6'}"><div class="team-name-header"><div class="team-name"><span>${getGameEmoji(t.game)} ${escapeHtml(t.game)}</span><strong style="color:${t.color||'#60a5fa'}">${escapeHtml(t.teamName)}</strong><span style="background:#1e293b;color:#94a3b8;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">✅ активна</span></div><span>${t.players.length} игроков</span></div><div class="players-list-compact">${t.players.map(p=>`<span class="player-chip">⚡ ${escapeHtml(p)}</span>`).join('')}</div>${isAdmin?`<div class="action-buttons"><button class="delete-btn" onclick="deleteTeam('${t.id}',false)">🗑️ УДАЛИТЬ</button></div>`:''}<div style="font-size:0.7rem;color:#64748b;">📅 ${escapeHtml(t.registeredAt)}</div></div>`).join('');}adminLoginBtn.innerHTML=isAdmin?'👑 АДМИН (ВЫ)':'🔐 Вход для админа';}
     
-    async function callScript(action, data = {}) {
-        const payload = { action, ...data };
-        return await sendViaImage(payload);
-    }
+    window.acceptTeam=async(id)=>{if(!isAdmin)return;await callScript("acceptTeam",{id});await loadFromSheets();resultMsg.textContent="✅ Команда принята!";setTimeout(()=>resultMsg.textContent="",2000);};
+    window.deleteTeam=async(id,isPending)=>{if(!isAdmin)return;await callScript("deleteTeam",{id,isPending});await loadFromSheets();resultMsg.textContent="🗑️ Команда удалена!";setTimeout(()=>resultMsg.textContent="",2000);};
+    function escapeHtml(s){return s?.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))||'';}
     
-    async function saveTourDate(date) {
-        try {
-            await callScript("setDate", { date });
-            await loadFromSheets();
-            resultMsg.textContent = `✅ Дата тура изменена на ${date}`;
-            setTimeout(() => resultMsg.textContent = "", 3000);
-        } catch(e) {
-            resultMsg.textContent = "❌ Ошибка";
-        }
-    }
+    function showPasswordModal(){const modal=document.createElement('div');modal.className='password-modal';modal.innerHTML=`<div class="modal-content"><h3>🔐 Вход для админа</h3><input type="password" id="adminPass" placeholder="Пароль"><div><button id="modalOk">Войти</button><button id="modalCancel">Отмена</button></div></div>`;document.body.appendChild(modal);const inp=modal.querySelector('#adminPass');modal.querySelector('#modalOk').onclick=()=>{if(btoa(inp.value)===ADMIN_PASSWORD_HASH){isAdmin=true;setupFilters();renderAll();resultMsg.textContent="✅ Добро пожаловать!";}else{resultMsg.textContent="❌ Неверный пароль!";isAdmin=false;renderAll();}modal.remove();};modal.querySelector('#modalCancel').onclick=()=>modal.remove();inp.focus();}
     
-    // ========== ОТРИСОВКА ==========
-    function renderAll() {
-        let filtered = pendingTeams;
-        if (currentGameFilter !== "all") filtered = pendingTeams.filter(t => t.game === currentGameFilter);
-        
-        pendingCountSpan.textContent = pendingTeams.length;
-        activeCountSpan.textContent = activeTeams.length;
-        dateEditArea.style.display = isAdmin ? 'block' : 'none';
-        filterPanel.style.display = isAdmin ? 'block' : 'none';
-        
-        if (filtered.length === 0) {
-            pendingListDiv.innerHTML = pendingTeams.length === 0 ? '<div class="empty-teams">📭 Нет заявок</div>' : `<div class="empty-teams">🎮 Нет заявок по игре "${currentGameFilter}"</div>`;
-        } else {
-            pendingListDiv.innerHTML = filtered.map(team => `
-                <div class="request-card" style="border-left-color: ${team.color || '#f59e0b'}">
-                    <div class="team-name-header">
-                        <div class="team-name">
-                            <span>${getGameEmoji(team.game)} ${escapeHtml(team.game)}</span>
-                            <strong style="color: ${team.color || '#f59e0b'}">${escapeHtml(team.teamName)}</strong>
-                            <span style="background:#1e293b;color:#94a3b8;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">⏳ заявка</span>
-                        </div>
-                        <span>${team.players.length} игроков</span>
-                    </div>
-                    <div class="players-list-compact">
-                        ${team.players.map(p => `<span class="player-chip">⚡ ${escapeHtml(p)}</span>`).join('')}
-                    </div>
-                    ${isAdmin ? `<div class="action-buttons">
-                        <button class="accept-btn" onclick="acceptTeam('${team.id}')">✅ ПРИНЯТЬ</button>
-                        <button class="reject-btn" onclick="deleteTeam('${team.id}', true)">🗑️ ОТКЛОНИТЬ</button>
-                    </div>` : ''}
-                    <div style="font-size:0.7rem; color:#64748b;">📅 ${escapeHtml(team.registeredAt)}</div>
-                </div>
-            `).join('');
-        }
-        
-        if (activeTeams.length === 0) {
-            activeListDiv.innerHTML = '<div class="empty-teams">🎯 Нет активных команд</div>';
-        } else {
-            activeListDiv.innerHTML = activeTeams.map(team => `
-                <div class="team-card-item" style="border-left-color: ${team.color || '#3b82f6'}">
-                    <div class="team-name-header">
-                        <div class="team-name">
-                            <span>${getGameEmoji(team.game)} ${escapeHtml(team.game)}</span>
-                            <strong style="color: ${team.color || '#60a5fa'}">${escapeHtml(team.teamName)}</strong>
-                            <span style="background:#1e293b;color:#94a3b8;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">✅ активна</span>
-                        </div>
-                        <span>${team.players.length} игроков</span>
-                    </div>
-                    <div class="players-list-compact">
-                        ${team.players.map(p => `<span class="player-chip">⚡ ${escapeHtml(p)}</span>`).join('')}
-                    </div>
-                    ${isAdmin ? `<div class="action-buttons">
-                        <button class="delete-btn" onclick="deleteTeam('${team.id}', false)">🗑️ УДАЛИТЬ</button>
-                    </div>` : ''}
-                    <div style="font-size:0.7rem; color:#64748b;">📅 ${escapeHtml(team.registeredAt)}</div>
-                </div>
-            `).join('');
-        }
-        
-        adminLoginBtn.innerHTML = isAdmin ? '👑 АДМИН (ВЫ)' : '🔐 Вход для админа';
-        adminLoginBtn.style.background = isAdmin ? 'rgba(59,130,246,0.3)' : 'rgba(66,153,225,0.15)';
-    }
+    adminLoginBtn.addEventListener('click',showPasswordModal);
+    refreshBtn.addEventListener('click',()=>{loadFromSheets();resultMsg.textContent="📋 Обновлено!";setTimeout(()=>resultMsg.textContent="",2000);});
+    saveDateBtn.addEventListener('click',async()=>{if(!isAdmin){resultMsg.textContent="⛔ Только админ!";return;}const nd=newDateInput.value;if(nd)await saveTourDate(nd.split('-').reverse().join('.'));else resultMsg.textContent="❌ Выберите дату!";});
     
-    window.acceptTeam = async (id) => {
-        if (!isAdmin) return;
-        await callScript("acceptTeam", { id });
-        await loadFromSheets();
-        resultMsg.textContent = "✅ Команда принята!";
-        setTimeout(() => resultMsg.textContent = "", 2000);
-    };
+    async function sendRequest(){const teamName=teamNameInput.value.trim();if(!teamName){resultMsg.textContent="❌ Введите название!";return;}const players=[...document.querySelectorAll('.player-input')].map(i=>i.value.trim()).filter(v=>v);if(players.length===0){resultMsg.textContent="❌ Заполните имена игроков!";return;}await callScript("addTeam",{id:Date.now()+Math.random()*10000,teamName,game:gameSelect.value,color:selectedColor,players,registeredAt:new Date().toLocaleString()});await loadFromSheets();resultMsg.textContent=`📨 Заявка "${teamName}" отправлена!`;teamNameInput.value='';initPlayers(2);selectedColor="#3b82f6";document.querySelectorAll('.color-btn').forEach(btn=>{btn.classList.remove('selected');if(btn.getAttribute('data-color')==="#3b82f6")btn.classList.add('selected');});document.querySelector('.tab-btn[data-tab="pending"]').click();setTimeout(()=>resultMsg.textContent="",3000);}
     
-    window.deleteTeam = async (id, isPending) => {
-        if (!isAdmin) return;
-        await callScript("deleteTeam", { id, isPending });
-        await loadFromSheets();
-        resultMsg.textContent = "🗑️ Команда удалена!";
-        setTimeout(() => resultMsg.textContent = "", 2000);
-    };
-    
-    function escapeHtml(str) { return str?.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])) || ''; }
-    
-    function showPasswordModal() {
-        const modal = document.createElement('div');
-        modal.className = 'password-modal';
-        modal.innerHTML = `<div class="modal-content"><h3>🔐 Вход для админа</h3><input type="password" id="adminPass" placeholder="Пароль"><div><button id="modalOk">Войти</button><button id="modalCancel">Отмена</button></div></div>`;
-        document.body.appendChild(modal);
-        const input = modal.querySelector('#adminPass');
-        modal.querySelector('#modalOk').onclick = () => {
-            if (btoa(input.value) === ADMIN_PASSWORD_HASH) {
-                isAdmin = true;
-                setupFilters();
-                renderAll();
-                resultMsg.textContent = "✅ Добро пожаловать, администратор!";
-            } else {
-                resultMsg.textContent = "❌ Неверный пароль!";
-                isAdmin = false;
-                renderAll();
-            }
-            modal.remove();
-        };
-        modal.querySelector('#modalCancel').onclick = () => modal.remove();
-        input.focus();
-    }
-    
-    adminLoginBtn.addEventListener('click', showPasswordModal);
-    refreshBtn.addEventListener('click', () => { loadFromSheets(); resultMsg.textContent = "📋 Обновлено!"; setTimeout(() => resultMsg.textContent = "", 2000); });
-    
-    saveDateBtn.addEventListener('click', async () => {
-        if (!isAdmin) { resultMsg.textContent = "⛔ Только админ!"; return; }
-        const newDate = newDateInput.value;
-        if (newDate) await saveTourDate(newDate.split('-').reverse().join('.'));
-        else resultMsg.textContent = "❌ Выберите дату!";
-    });
-    
-    async function sendRequest() {
-        const teamName = teamNameInput.value.trim();
-        if (!teamName) {
-            resultMsg.textContent = "❌ Введите название команды!";
-            resultMsg.style.color = "#f87171";
-            return;
-        }
-        
-        const players = [];
-        let empty = false;
-        document.querySelectorAll('.player-input').forEach(inp => {
-            const val = inp.value.trim();
-            if (!val) empty = true;
-            else players.push(val);
-        });
-        if (empty || players.length === 0) {
-            resultMsg.textContent = "❌ Заполните имена всех игроков!";
-            resultMsg.style.color = "#f87171";
-            return;
-        }
-        
-        const newTeam = {
-            action: "addTeam",
-            id: Date.now() + Math.random() * 10000,
-            teamName: teamName,
-            game: gameSelect.value,
-            color: selectedColor,
-            players: players,
-            registeredAt: new Date().toLocaleString()
-        };
-        
-        try {
-            await callScript("addTeam", newTeam);
-            await loadFromSheets();
-            resultMsg.textContent = `📨 Заявка "${teamName}" отправлена!`;
-            resultMsg.style.color = "#60a5fa";
-            
-            teamNameInput.value = '';
-            initPlayers(2);
-            selectedColor = "#3b82f6";
-            document.querySelectorAll('.color-btn').forEach(btn => {
-                btn.classList.remove('selected');
-                if (btn.getAttribute('data-color') === "#3b82f6") btn.classList.add('selected');
-            });
-            
-            document.querySelector('.tab-btn[data-tab="pending"]').click();
-            setTimeout(() => resultMsg.textContent = "", 3000);
-        } catch(e) {
-            resultMsg.textContent = "❌ Ошибка отправки заявки";
-            resultMsg.style.color = "#f87171";
-        }
-    }
-    
-    registerBtn.addEventListener('click', sendRequest);
+    registerBtn.addEventListener('click',sendRequest);
     loadFromSheets();
 </script>
 </body>
