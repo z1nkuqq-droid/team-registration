@@ -115,6 +115,7 @@
             font-size: 1rem;
             color: #eef5ff;
             outline: none;
+            cursor: pointer;
         }
 
         .team-name-input:focus, select:focus {
@@ -434,6 +435,11 @@
             border-radius: 2rem;
             cursor: pointer;
         }
+
+        .game-icon {
+            display: inline-block;
+            margin-right: 6px;
+        }
     </style>
 </head>
 <body>
@@ -457,8 +463,12 @@
                     <div class="input-group">
                         <label>🎮 ИГРА</label>
                         <select id="gameSelect">
-                            <option value="Dota 2">Dota 2</option>
-                            <option value="CS2">CS2</option>
+                            <option value="Dota 2">🎮 Dota 2</option>
+                            <option value="CS2">🎯 CS2</option>
+                            <option value="Fortnite">🔫 Fortnite</option>
+                            <option value="Brawl Stars">⭐ Brawl Stars</option>
+                            <option value="Valorant">💣 Valorant</option>
+                            <option value="Clash Royale">👑 Clash Royale</option>
                         </select>
                     </div>
                     <div class="input-group">
@@ -518,9 +528,9 @@
     // ========== ВАШ URL GOOGLE APPS SCRIPT ==========
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8uSGTb20Uu8UHE-5VmC7ncNhKnsGXJRH5HXuXl_lVY5kdeFmBTVTDQG99BCbe5TmZQg/exec";
     
-    // ========== ПАРОЛЬ АДМИНИСТРАТОРА (скрыт, в коде только хеш) ==========
+    // ========== ПАРОЛЬ АДМИНИСТРАТОРА (скрыт) ==========
     // Пароль: qweasd!@#
-    const ADMIN_PASSWORD_HASH = btoa("qweasd!@#"); // base64 для простого скрытия
+    const ADMIN_PASSWORD_HASH = btoa("qweasd!@#");
     
     let pendingTeams = [];
     let activeTeams = [];
@@ -546,6 +556,19 @@
     const dateEditArea = document.getElementById('dateEditArea');
     const newDateInput = document.getElementById('newDateInput');
     const saveDateBtn = document.getElementById('saveDateBtn');
+    
+    // Функция для получения эмодзи игры
+    function getGameEmoji(game) {
+        const emojis = {
+            "Dota 2": "🎮",
+            "CS2": "🎯",
+            "Fortnite": "🔫",
+            "Brawl Stars": "⭐",
+            "Valorant": "💣",
+            "Clash Royale": "👑"
+        };
+        return emojis[game] || "🎮";
+    }
     
     // Табы
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -680,7 +703,7 @@
                 <div class="request-card" style="border-left-color: ${team.color || '#f59e0b'}">
                     <div class="team-name-header">
                         <div class="team-name">
-                            <span>🎮 ${escapeHtml(team.game)}</span>
+                            <span>${getGameEmoji(team.game)} ${escapeHtml(team.game)}</span>
                             <strong style="color: ${team.color || '#f59e0b'}">${escapeHtml(team.teamName)}</strong>
                             <span style="background:#5a4a1a;color:#ffcc66;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">⏳ заявка</span>
                         </div>
@@ -708,7 +731,7 @@
                 <div class="team-card-item" style="border-left-color: ${team.color || '#3b82f6'}">
                     <div class="team-name-header">
                         <div class="team-name">
-                            <span>🎮 ${escapeHtml(team.game)}</span>
+                            <span>${getGameEmoji(team.game)} ${escapeHtml(team.game)}</span>
                             <strong style="color: ${team.color || '#7bc9ff'}">${escapeHtml(team.teamName)}</strong>
                             <span style="background:#1a4a3a;color:#8affc0;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:1rem;">✅ активна</span>
                         </div>
@@ -777,7 +800,7 @@
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
     
-    // ========== МОДАЛ ПАРОЛЯ (скрытый пароль) ==========
+    // ========== МОДАЛ ПАРОЛЯ ==========
     function showPasswordModal() {
         const modal = document.createElement('div');
         modal.className = 'password-modal';
@@ -794,7 +817,6 @@
         document.body.appendChild(modal);
         const input = modal.querySelector('#adminPass');
         modal.querySelector('#modalOk').onclick = () => {
-            // Сравниваем хеш введённого пароля с сохранённым хешем
             if (btoa(input.value) === ADMIN_PASSWORD_HASH) {
                 isAdmin = true;
                 resultMsg.textContent = "✅ Добро пожаловать, администратор!";
