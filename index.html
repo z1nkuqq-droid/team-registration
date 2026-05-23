@@ -1,3 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Турнирная панель</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #0a0a0f;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #111827;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #1f2937;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 15px;
+            color: #60a5fa;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            margin-bottom: 14px;
+            border-radius: 10px;
+            border: 1px solid #374151;
+            background: #0f172a;
+            color: #fff;
+        }
+
+        button {
+            background: #2563eb;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .players-list, .teams-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .player-item, .team-card {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #1f2937;
+        }
+
+        .player-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .player-row input {
+            margin-bottom: 0;
+        }
+
+        .remove-btn {
+            width: 50px;
+            background: #dc2626;
+        }
+
+        .status {
+            margin-top: 10px;
+            color: #93c5fd;
+        }
+
+        .muted {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0 15px;
+            flex-wrap: wrap;
+        }
+
+        .color-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .color-btn.selected {
+            border-color: #fff;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+
+        .team-card strong {
+            color: #fff;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .chip {
+            background: #1e293b;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1>Турнирная панель</h1>
+        <div class="muted" id="tourDateDisplay">Дата тура: загрузка...</div>
+        <div class="status" id="statusPanel">Подключение к Google Sheets...</div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h2>Новая заявка</h2>
+
+            <label>Название команды</label>
+            <input type="text" id="teamName" placeholder="Например: Dragon Slayers">
+
+            <label>Игра</label>
+            <select id="gameSelect">
+                <option value="Dota 2">Dota 2</option>
+                <option value="CS2">CS2</option>
+                <option value="Fortnite">Fortnite</option>
+                <option value="Brawl Stars">Brawl Stars</option>
+                <option value="Valorant">Valorant</option>
+                <option value="Clash Royale">Clash Royale</option>
+            </select>
+
+            <label>Цвет команды</label>
+            <div class="color-options">
+                <div class="color-btn selected" style="background:#3b82f6" data-color="#3b82f6"></div>
+                <div class="color-btn" style="background:#ef4444" data-color="#ef4444"></div>
+                <div class="color-btn" style="background:#10b981" data-color="#10b981"></div>
+                <div class="color-btn" style="background:#f59e0b" data-color="#f59e0b"></div>
+                <div class="color-btn" style="background:#8b5cf6" data-color="#8b5cf6"></div>
+                <div class="color-btn" style="background:#ec489a" data-color="#ec489a"></div>
+            </div>
+
+            <h3>Игроки</h3>
+            <div id="playersContainer" class="players-list"></div>
+            <button type="button" id="addPlayerBtn">Добавить игрока</button>
+
+            <button id="registerBtn">Отправить заявку</button>
+            <div class="status" id="resultMsg"></div>
+        </div>
+
+        <div class="card">
+            <h2>Заявки</h2>
+            <button id="refreshBtn">Обновить</button>
+            <h3 style="margin-top:15px;">Новые заявки (<span id="pendingCount">0</span>)</h3>
+            <div id="pendingList" class="teams-grid">
+                <div class="muted">Загрузка...</div>
+            </div>
+
+            <h3 style="margin-top:20px;">Активные команды (<span id="activeCount">0</span>)</h3>
+            <div id="activeList" class="teams-grid">
+                <div class="muted">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8uSGTb20Uu8UHE-5VmC7ncNhKnsGXJRH5HXuXl_lVY5kdeFmBTVTDQG99BCbe5TmZQg/exec";
 
@@ -5,8 +212,6 @@ let pendingTeams = [];
 let activeTeams = [];
 let tourDate = "";
 let selectedColor = "#3b82f6";
-let isAdmin = false;
-let currentGameFilter = "all";
 
 const teamNameInput = document.getElementById('teamName');
 const gameSelect = document.getElementById('gameSelect');
@@ -20,25 +225,7 @@ const activeListDiv = document.getElementById('activeList');
 const pendingCountSpan = document.getElementById('pendingCount');
 const activeCountSpan = document.getElementById('activeCount');
 const statusPanel = document.getElementById('statusPanel');
-const adminLoginBtn = document.getElementById('adminLoginBtn');
 const tourDateDisplay = document.getElementById('tourDateDisplay');
-const dateEditArea = document.getElementById('dateEditArea');
-const newDateInput = document.getElementById('newDateInput');
-const saveDateBtn = document.getElementById('saveDateBtn');
-const filterPanel = document.getElementById('filterPanel');
-const filterBar = document.getElementById('filterBar');
-
-function getGameEmoji(game) {
-    const emojis = {
-        "Dota 2": "🎮",
-        "CS2": "🎯",
-        "Fortnite": "🔫",
-        "Brawl Stars": "⭐",
-        "Valorant": "💣",
-        "Clash Royale": "👑"
-    };
-    return emojis[game] || "🎮";
-}
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -47,65 +234,9 @@ function escapeHtml(str) {
     });
 }
 
-async function callScript(action, data = {}) {
-    try {
-        const response = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            redirect: 'follow',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            body: JSON.stringify({ action, ...data })
-        });
-
-        const text = await response.text();
-        console.log('SERVER RESPONSE:', text);
-
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            return { status: 'error', message: 'Сервер вернул не JSON', raw: text };
-        }
-    } catch (error) {
-        console.error('Fetch error:', error);
-        return { status: 'error', message: error.message };
-    }
-}
-
-async function loadFromSheets() {
-    try {
-        statusPanel.textContent = "🔄 Загрузка данных...";
-        const response = await fetch(APPS_SCRIPT_URL + '?_=' + Date.now());
-        const text = await response.text();
-        const data = JSON.parse(text);
-
-        if (data.status !== 'success') {
-            throw new Error(data.message || 'Ошибка загрузки');
-        }
-
-        tourDate = data.tourDate || 'не установлена';
-        pendingTeams = Array.isArray(data.pending) ? data.pending : [];
-        activeTeams = Array.isArray(data.active) ? data.active : [];
-
-        tourDateDisplay.textContent = '📅 Дата тура: ' + tourDate;
-        pendingCountSpan.textContent = pendingTeams.length;
-        activeCountSpan.textContent = activeTeams.length;
-        statusPanel.textContent = '✅ Заявок: ' + pendingTeams.length + ' | Активных: ' + activeTeams.length;
-
-        renderAll();
-    } catch (error) {
-        console.error(error);
-        statusPanel.textContent = "⚠️ Ошибка подключения к Google Sheets";
-    }
-}
-
 function createPlayerRow(num, value = '') {
-    const div = document.createElement('div');
-    div.className = 'player-item';
-
-    const numberSpan = document.createElement('span');
-    numberSpan.className = 'player-number';
-    numberSpan.textContent = num;
+    const wrap = document.createElement('div');
+    wrap.className = 'player-row';
 
     const input = document.createElement('input');
     input.type = 'text';
@@ -113,26 +244,24 @@ function createPlayerRow(num, value = '') {
     input.placeholder = 'Игрок ' + num;
     input.value = value;
 
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'remove-player';
-    removeBtn.type = 'button';
-    removeBtn.textContent = '✕';
-    removeBtn.onclick = function() {
-        div.remove();
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = 'X';
+    btn.className = 'remove-btn';
+    btn.onclick = function() {
+        wrap.remove();
         renumberPlayers();
     };
 
-    div.appendChild(numberSpan);
-    div.appendChild(input);
-    div.appendChild(removeBtn);
-    return div;
+    wrap.appendChild(input);
+    wrap.appendChild(btn);
+    return wrap;
 }
 
 function renumberPlayers() {
-    const rows = playersContainer.querySelectorAll('.player-item');
-    rows.forEach((row, idx) => {
-        row.querySelector('.player-number').textContent = idx + 1;
-        row.querySelector('.player-input').placeholder = 'Игрок ' + (idx + 1);
+    document.querySelectorAll('.player-row').forEach((row, index) => {
+        const input = row.querySelector('.player-input');
+        if (input) input.placeholder = 'Игрок ' + (index + 1);
     });
 }
 
@@ -143,50 +272,84 @@ function initPlayers(count = 2) {
     }
 }
 
-function renderAll() {
-    const filteredPending = currentGameFilter === 'all'
-        ? pendingTeams
-        : pendingTeams.filter(team => team.game === currentGameFilter);
+async function callScript(action, data = {}) {
+    try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: JSON.stringify({ action, ...data })
+        });
 
-    dateEditArea.style.display = isAdmin ? 'block' : 'none';
-    filterPanel.style.display = isAdmin ? 'block' : 'none';
+        const text = await response.text();
+        console.log(text);
 
-    if (filteredPending.length === 0) {
-        pendingListDiv.innerHTML = '<div class="empty-teams">📭 Нет новых заявок</div>';
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            return { status: 'error', message: 'Сервер вернул не JSON', raw: text };
+        }
+    } catch (error) {
+        return { status: 'error', message: error.message };
+    }
+}
+
+async function loadFromSheets() {
+    try {
+        statusPanel.textContent = 'Загрузка данных...';
+
+        const response = await fetch(APPS_SCRIPT_URL + '?_=' + Date.now());
+        const text = await response.text();
+        const data = JSON.parse(text);
+
+        if (data.status !== 'success') {
+            throw new Error(data.message || 'Ошибка загрузки');
+        }
+
+        pendingTeams = Array.isArray(data.pending) ? data.pending : [];
+        activeTeams = Array.isArray(data.active) ? data.active : [];
+        tourDate = data.tourDate || 'не установлена';
+
+        tourDateDisplay.textContent = 'Дата тура: ' + tourDate;
+        pendingCountSpan.textContent = pendingTeams.length;
+        activeCountSpan.textContent = activeTeams.length;
+        statusPanel.textContent = 'Данные загружены';
+
+        renderTeams();
+    } catch (error) {
+        console.error(error);
+        statusPanel.textContent = 'Ошибка подключения к Google Sheets';
+    }
+}
+
+function renderTeams() {
+    if (pendingTeams.length === 0) {
+        pendingListDiv.innerHTML = '<div class="muted">Нет новых заявок</div>';
     } else {
-        pendingListDiv.innerHTML = filteredPending.map(team => `
-            <div class="request-card" style="border-left-color:${escapeHtml(team.color || '#f59e0b')}">
-                <div class="team-name-header">
-                    <div class="team-name">
-                        <span>${getGameEmoji(team.game)} ${escapeHtml(team.game)}</span>
-                        <strong style="color:${escapeHtml(team.color || '#f59e0b')}">${escapeHtml(team.teamName)}</strong>
-                    </div>
-                    <span>${Array.isArray(team.players) ? team.players.length : 0} игроков</span>
+        pendingListDiv.innerHTML = pendingTeams.map(team => `
+            <div class="team-card" style="border-left:4px solid ${escapeHtml(team.color || '#3b82f6')}">
+                <strong>${escapeHtml(team.teamName)}</strong>
+                <div class="muted">${escapeHtml(team.game || '')}</div>
+                <div class="chips">
+                    ${(team.players || []).map(player => `<span class="chip">${escapeHtml(player)}</span>`).join('')}
                 </div>
-                <div class="players-list-compact">
-                    ${(team.players || []).map(p => `<span class="player-chip">⚡ ${escapeHtml(p)}</span>`).join('')}
-                </div>
-                <div style="font-size:0.7rem;color:#64748b;margin-top:0.5rem;">📅 ${escapeHtml(team.registeredAt || '')}</div>
+                <div class="muted" style="margin-top:8px;">${escapeHtml(team.registeredAt || '')}</div>
             </div>
         `).join('');
     }
 
     if (activeTeams.length === 0) {
-        activeListDiv.innerHTML = '<div class="empty-teams">🎯 Нет активных команд</div>';
+        activeListDiv.innerHTML = '<div class="muted">Нет активных команд</div>';
     } else {
         activeListDiv.innerHTML = activeTeams.map(team => `
-            <div class="team-card-item" style="border-left-color:${escapeHtml(team.color || '#3b82f6')}">
-                <div class="team-name-header">
-                    <div class="team-name">
-                        <span>${getGameEmoji(team.game)} ${escapeHtml(team.game)}</span>
-                        <strong style="color:${escapeHtml(team.color || '#3b82f6')}">${escapeHtml(team.teamName)}</strong>
-                    </div>
-                    <span>${Array.isArray(team.players) ? team.players.length : 0} игроков</span>
+            <div class="team-card" style="border-left:4px solid ${escapeHtml(team.color || '#10b981')}">
+                <strong>${escapeHtml(team.teamName)}</strong>
+                <div class="muted">${escapeHtml(team.game || '')}</div>
+                <div class="chips">
+                    ${(team.players || []).map(player => `<span class="chip">${escapeHtml(player)}</span>`).join('')}
                 </div>
-                <div class="players-list-compact">
-                    ${(team.players || []).map(p => `<span class="player-chip">⚡ ${escapeHtml(p)}</span>`).join('')}
-                </div>
-                <div style="font-size:0.7rem;color:#64748b;margin-top:0.5rem;">📅 ${escapeHtml(team.registeredAt || '')}</div>
+                <div class="muted" style="margin-top:8px;">${escapeHtml(team.registeredAt || '')}</div>
             </div>
         `).join('');
     }
@@ -194,52 +357,49 @@ function renderAll() {
 
 async function sendRequest() {
     const teamName = teamNameInput.value.trim();
+
     if (!teamName) {
-        resultMsg.textContent = "❌ Введите название команды!";
-        resultMsg.style.color = "#f87171";
+        resultMsg.textContent = 'Введите название команды';
         return;
     }
 
     const players = [];
-    let hasEmpty = false;
-    document.querySelectorAll('.player-input').forEach(inp => {
-        const val = inp.value.trim();
-        if (!val) hasEmpty = true;
+    let emptyExists = false;
+
+    document.querySelectorAll('.player-input').forEach(input => {
+        const val = input.value.trim();
+        if (!val) emptyExists = true;
         else players.push(val);
     });
 
-    if (hasEmpty || players.length === 0) {
-        resultMsg.textContent = "❌ Заполните имена всех игроков!";
-        resultMsg.style.color = "#f87171";
+    if (emptyExists || players.length === 0) {
+        resultMsg.textContent = 'Заполните имена всех игроков';
         return;
     }
 
     registerBtn.disabled = true;
-    registerBtn.textContent = '⏳ ОТПРАВКА...';
+    registerBtn.textContent = 'Отправка...';
 
     const payload = {
         id: String(Date.now()),
-        teamName,
+        teamName: teamName,
         game: gameSelect.value,
         color: selectedColor,
-        players,
+        players: players,
         registeredAt: new Date().toLocaleString('ru-RU')
     };
 
     const result = await callScript('addTeam', payload);
 
     registerBtn.disabled = false;
-    registerBtn.textContent = '📨 ОТПРАВИТЬ ЗАЯВКУ';
+    registerBtn.textContent = 'Отправить заявку';
 
     if (result.status !== 'success') {
-        resultMsg.textContent = '❌ ' + (result.message || 'Ошибка отправки заявки');
-        resultMsg.style.color = '#f87171';
+        resultMsg.textContent = 'Ошибка: ' + (result.message || 'не удалось отправить');
         return;
     }
 
-    resultMsg.textContent = '✅ Заявка отправлена!';
-    resultMsg.style.color = '#60a5fa';
-
+    resultMsg.textContent = 'Заявка отправлена';
     teamNameInput.value = '';
     initPlayers(2);
     await loadFromSheets();
@@ -257,15 +417,15 @@ document.querySelectorAll('.color-btn').forEach(btn => {
     });
 });
 
-document.querySelector('.color-btn')?.classList.add('selected');
-
 addPlayerBtn.addEventListener('click', function() {
     playersContainer.appendChild(createPlayerRow(playersContainer.children.length + 1));
 });
 
-refreshBtn.addEventListener('click', loadFromSheets);
 registerBtn.addEventListener('click', sendRequest);
+refreshBtn.addEventListener('click', loadFromSheets);
 
 initPlayers(2);
 loadFromSheets();
 </script>
+</body>
+</html>
