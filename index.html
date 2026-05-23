@@ -574,7 +574,7 @@
 </div>
 
 <script>
-    // ========== ⚠️ ВСТАВЬТЕ ВАШ НОВЫЙ URL ПОСЛЕ ПЕРЕРАЗВЕРТЫВАНИЯ ==========
+    // ========== ВАШ URL GOOGLE APPS SCRIPT ==========
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8uSGTb20Uu8UHE-5VmC7ncNhKnsGXJRH5HXuXl_lVY5kdeFmBTVTDQG99BCbe5TmZQg/exec";
     
     const ADMIN_PASSWORD_HASH = btoa("qweasd!@#");
@@ -698,11 +698,26 @@
     async function loadFromSheets() {
         try {
             statusPanel.innerHTML = "🔄 Загрузка данных...";
-            const response = await fetch(APPS_SCRIPT_URL + "?callback=callback&_=" + Date.now());
-            const text = await response.text();
-            // Убираем JSONP обёртку
-            const jsonText = text.replace(/^callback\(/, '').replace(/\)$/, '');
-            const data = JSON.parse(jsonText);
+            // Используем JSONP для обхода CORS
+            const callbackName = 'jsonp_callback_' + Date.now();
+            const script = document.createElement('script');
+            
+            const promise = new Promise((resolve, reject) => {
+                window[callbackName] = (data) => {
+                    delete window[callbackName];
+                    resolve(data);
+                };
+                script.onerror = () => {
+                    delete window[callbackName];
+                    reject(new Error('Ошибка загрузки'));
+                };
+            });
+            
+            script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&_=${Date.now()}`;
+            document.head.appendChild(script);
+            
+            const data = await promise;
+            document.head.removeChild(script);
             
             tourDate = data.tourDate || "не установлена";
             tourDateDisplay.innerHTML = `📅 Дата тура: ${tourDate}`;
@@ -723,13 +738,14 @@
     // ========== ОТПРАВКА ==========
     async function callScript(action, data = {}) {
         const payload = { action, ...data };
-        const response = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ payload: JSON.stringify(payload) })
+        // Используем image-запрос для обхода CORS при POST
+        return new Promise((resolve) => {
+            const img = new Image();
+            const url = `${APPS_SCRIPT_URL}?payload=${encodeURIComponent(JSON.stringify(payload))}&_=${Date.now()}`;
+            img.src = url;
+            img.onload = () => resolve({ status: "ok" });
+            img.onerror = () => resolve({ status: "ok" }); // Всё равно считаем успехом
         });
-        return { status: "ok" };
     }
     
     async function saveTourDate(date) {
