@@ -698,26 +698,8 @@
     async function loadFromSheets() {
         try {
             statusPanel.innerHTML = "🔄 Загрузка данных...";
-            // Используем JSONP для обхода CORS
-            const callbackName = 'jsonp_callback_' + Date.now();
-            const script = document.createElement('script');
-            
-            const promise = new Promise((resolve, reject) => {
-                window[callbackName] = (data) => {
-                    delete window[callbackName];
-                    resolve(data);
-                };
-                script.onerror = () => {
-                    delete window[callbackName];
-                    reject(new Error('Ошибка загрузки'));
-                };
-            });
-            
-            script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&_=${Date.now()}`;
-            document.head.appendChild(script);
-            
-            const data = await promise;
-            document.head.removeChild(script);
+            const response = await fetch(APPS_SCRIPT_URL + "?_=" + Date.now());
+            const data = await response.json();
             
             tourDate = data.tourDate || "не установлена";
             tourDateDisplay.innerHTML = `📅 Дата тура: ${tourDate}`;
@@ -728,7 +710,7 @@
             renderAll();
         } catch (error) {
             console.error("Ошибка:", error);
-            statusPanel.innerHTML = "⚠️ Ошибка подключения. Попробуйте обновить страницу.";
+            statusPanel.innerHTML = "⚠️ Ошибка подключения. Проверьте интернет.";
             pendingTeams = [];
             activeTeams = [];
             renderAll();
@@ -738,14 +720,12 @@
     // ========== ОТПРАВКА ==========
     async function callScript(action, data = {}) {
         const payload = { action, ...data };
-        // Используем image-запрос для обхода CORS при POST
-        return new Promise((resolve) => {
-            const img = new Image();
-            const url = `${APPS_SCRIPT_URL}?payload=${encodeURIComponent(JSON.stringify(payload))}&_=${Date.now()}`;
-            img.src = url;
-            img.onload = () => resolve({ status: "ok" });
-            img.onerror = () => resolve({ status: "ok" }); // Всё равно считаем успехом
+        const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ payload: JSON.stringify(payload) })
         });
+        return await response.json();
     }
     
     async function saveTourDate(date) {
