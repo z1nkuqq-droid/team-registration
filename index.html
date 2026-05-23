@@ -1,431 +1,886 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Турнирная панель</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Турнирные заявки</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        body {
-            background: #0a0a0f;
-            color: #fff;
-            padding: 20px;
-        }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
 
-        .card {
-            background: #111827;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #1f2937;
-        }
+    .panel {
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(8px);
+    }
 
-        h1, h2, h3 {
-            margin-bottom: 15px;
-            color: #60a5fa;
-        }
+    h1, h2, h3 {
+      margin-bottom: 14px;
+    }
 
-        input, select, button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 8px;
-            margin-bottom: 14px;
-            border-radius: 10px;
-            border: 1px solid #374151;
-            background: #0f172a;
-            color: #fff;
-        }
+    .topbar {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 
-        button {
-            background: #2563eb;
-            cursor: pointer;
-            font-weight: bold;
-        }
+    .muted {
+      color: #94a3b8;
+      font-size: 14px;
+    }
 
-        button:hover {
-            background: #1d4ed8;
-        }
+    .status {
+      margin-top: 10px;
+      color: #93c5fd;
+      font-size: 14px;
+    }
 
-        .players-list, .teams-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
 
-        .player-item, .team-card {
-            background: #0f172a;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #1f2937;
-        }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      margin-top: 12px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
 
-        .player-row {
-            display: flex;
-            gap: 10px;
-        }
+    input, select, button {
+      width: 100%;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 14px;
+      font-size: 15px;
+    }
 
-        .player-row input {
-            margin-bottom: 0;
-        }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
 
-        .remove-btn {
-            width: 50px;
-            background: #dc2626;
-        }
+    button {
+      cursor: pointer;
+      transition: 0.2s ease;
+      font-weight: bold;
+    }
 
-        .status {
-            margin-top: 10px;
-            color: #93c5fd;
-        }
+    button:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
 
-        .muted {
-            color: #94a3b8;
-            font-size: 14px;
-        }
+    .primary-btn {
+      background: #2563eb;
+      margin-top: 16px;
+    }
 
-        .color-options {
-            display: flex;
-            gap: 10px;
-            margin: 10px 0 15px;
-            flex-wrap: wrap;
-        }
+    .secondary-btn {
+      background: #1e293b;
+    }
 
-        .color-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            cursor: pointer;
-        }
+    .danger-btn {
+      background: #dc2626;
+      width: 48px;
+      flex: 0 0 48px;
+      padding: 0;
+    }
 
-        .color-btn.selected {
-            border-color: #fff;
-            box-shadow: 0 0 0 2px #3b82f6;
-        }
+    .players-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
 
-        .team-card strong {
-            color: #fff;
-        }
+    .player-item {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
 
-        .chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-        }
+    .player-number {
+      width: 30px;
+      text-align: center;
+      color: #93c5fd;
+      font-weight: bold;
+    }
 
-        .chip {
-            background: #1e293b;
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            color: #cbd5e1;
-        }
+    .player-input {
+      flex: 1;
+    }
 
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+    .color-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
 
-        @media (max-width: 900px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    .color-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .color-btn.selected {
+      border-color: #fff;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.35);
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .toolbar button {
+      width: auto;
+      padding: 10px 14px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      width: auto;
+      padding: 10px 14px;
+      background: #1e293b;
+    }
+
+    .tab-btn.active {
+      background: #2563eb;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .teams-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .request-card,
+    .team-card-item {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-left: 5px solid #3b82f6;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .team-name-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .team-name {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .team-name strong {
+      font-size: 18px;
+    }
+
+    .players-list-compact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .player-chip {
+      background: #1e293b;
+      color: #cbd5e1;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .empty-teams {
+      padding: 20px;
+      text-align: center;
+      color: #94a3b8;
+      background: #0f172a;
+      border-radius: 14px;
+      border: 1px dashed #334155;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .filter-btn {
+      width: auto;
+      padding: 8px 12px;
+      background: #1e293b;
+      font-size: 14px;
+    }
+
+    .filter-btn.active {
+      background: #2563eb;
+    }
+
+    .admin-area {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #334155;
+    }
+
+    .date-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: end;
+    }
+
+    .date-row input {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .date-row button {
+      width: auto;
+      min-width: 150px;
+    }
+
+    .password-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      padding: 20px;
+    }
+
+    .modal-content {
+      width: 100%;
+      max-width: 380px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-    <div class="card">
-        <h1>Турнирная панель</h1>
-        <div class="muted" id="tourDateDisplay">Дата тура: загрузка...</div>
-        <div class="status" id="statusPanel">Подключение к Google Sheets...</div>
+  <div class="container">
+    <div class="panel">
+      <div class="topbar">
+        <div>
+          <h1>Турнирные заявки</h1>
+          <div class="muted" id="tourDateDisplay">📅 Дата тура: загрузка...</div>
+          <div class="status" id="statusPanel">Подключение к Google Sheets...</div>
+        </div>
+        <div class="toolbar">
+          <button class="secondary-btn" id="refreshBtn" type="button">🔄 Обновить</button>
+          <button class="secondary-btn" id="adminLoginBtn" type="button">🔐 Вход для админа</button>
+        </div>
+      </div>
     </div>
 
     <div class="grid">
-        <div class="card">
-            <h2>Новая заявка</h2>
+      <div class="panel">
+        <h2>Подать заявку</h2>
 
-            <label>Название команды</label>
-            <input type="text" id="teamName" placeholder="Например: Dragon Slayers">
+        <label for="teamName">Название команды</label>
+        <input id="teamName" type="text" placeholder="Введите название команды" />
 
-            <label>Игра</label>
-            <select id="gameSelect">
-                <option value="Dota 2">Dota 2</option>
-                <option value="CS2">CS2</option>
-                <option value="Fortnite">Fortnite</option>
-                <option value="Brawl Stars">Brawl Stars</option>
-                <option value="Valorant">Valorant</option>
-                <option value="Clash Royale">Clash Royale</option>
-            </select>
+        <label for="gameSelect">Игра</label>
+        <select id="gameSelect">
+          <option value="Dota 2">Dota 2</option>
+          <option value="CS2">CS2</option>
+          <option value="Fortnite">Fortnite</option>
+          <option value="Brawl Stars">Brawl Stars</option>
+          <option value="Valorant">Valorant</option>
+          <option value="Clash Royale">Clash Royale</option>
+        </select>
 
-            <label>Цвет команды</label>
-            <div class="color-options">
-                <div class="color-btn selected" style="background:#3b82f6" data-color="#3b82f6"></div>
-                <div class="color-btn" style="background:#ef4444" data-color="#ef4444"></div>
-                <div class="color-btn" style="background:#10b981" data-color="#10b981"></div>
-                <div class="color-btn" style="background:#f59e0b" data-color="#f59e0b"></div>
-                <div class="color-btn" style="background:#8b5cf6" data-color="#8b5cf6"></div>
-                <div class="color-btn" style="background:#ec489a" data-color="#ec489a"></div>
-            </div>
-
-            <h3>Игроки</h3>
-            <div id="playersContainer" class="players-list"></div>
-            <button type="button" id="addPlayerBtn">Добавить игрока</button>
-
-            <button id="registerBtn">Отправить заявку</button>
-            <div class="status" id="resultMsg"></div>
+        <label>Цвет команды</label>
+        <div class="color-row">
+          <button type="button" class="color-btn selected" data-color="#3b82f6" style="background:#3b82f6;"></button>
+          <button type="button" class="color-btn" data-color="#ef4444" style="background:#ef4444;"></button>
+          <button type="button" class="color-btn" data-color="#10b981" style="background:#10b981;"></button>
+          <button type="button" class="color-btn" data-color="#f59e0b" style="background:#f59e0b;"></button>
+          <button type="button" class="color-btn" data-color="#8b5cf6" style="background:#8b5cf6;"></button>
+          <button type="button" class="color-btn" data-color="#ec4899" style="background:#ec4899;"></button>
         </div>
 
-        <div class="card">
-            <h2>Заявки</h2>
-            <button id="refreshBtn">Обновить</button>
-            <h3 style="margin-top:15px;">Новые заявки (<span id="pendingCount">0</span>)</h3>
-            <div id="pendingList" class="teams-grid">
-                <div class="muted">Загрузка...</div>
-            </div>
+        <label>Игроки</label>
+        <div id="playersContainer" class="players-list"></div>
 
-            <h3 style="margin-top:20px;">Активные команды (<span id="activeCount">0</span>)</h3>
-            <div id="activeList" class="teams-grid">
-                <div class="muted">Загрузка...</div>
-            </div>
+        <div class="toolbar">
+          <button id="addPlayerBtn" class="secondary-btn" type="button">➕ Добавить игрока</button>
         </div>
+
+        <button id="registerBtn" class="primary-btn" type="button">📨 Отправить заявку</button>
+        <div class="status" id="resultMsg"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Список команд</h2>
+
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="pending" type="button">⏳ Новые (<span id="pendingCount">0</span>)</button>
+          <button class="tab-btn" data-tab="active" type="button">✅ Активные (<span id="activeCount">0</span>)</button>
+        </div>
+
+        <div id="filterPanel" class="admin-area">
+          <h3>Фильтр по игре</h3>
+          <div class="filter-bar" id="filterBar">
+            <button class="filter-btn active" data-game="all" type="button">Все</button>
+            <button class="filter-btn" data-game="Dota 2" type="button">Dota 2</button>
+            <button class="filter-btn" data-game="CS2" type="button">CS2</button>
+            <button class="filter-btn" data-game="Fortnite" type="button">Fortnite</button>
+            <button class="filter-btn" data-game="Brawl Stars" type="button">Brawl Stars</button>
+            <button class="filter-btn" data-game="Valorant" type="button">Valorant</button>
+            <button class="filter-btn" data-game="Clash Royale" type="button">Clash Royale</button>
+          </div>
+        </div>
+
+        <div id="dateEditArea" class="admin-area">
+          <h3>Изменить дату тура</h3>
+          <div class="date-row">
+            <input id="newDateInput" type="date" />
+            <button id="saveDateBtn" class="secondary-btn" type="button">💾 Сохранить дату</button>
+          </div>
+        </div>
+
+        <div id="pendingTab" class="tab-content active">
+          <div id="pendingList" class="teams-list">
+            <div class="empty-teams">Загрузка...</div>
+          </div>
+        </div>
+
+        <div id="activeTab" class="tab-content">
+          <div id="activeList" class="teams-list">
+            <div class="empty-teams">Загрузка...</div>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8uSGTb20Uu8UHE-5VmC7ncNhKnsGXJRH5HXuXl_lVY5kdeFmBTVTDQG99BCbe5TmZQg/exec";
+  <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8uSGTb20Uu8UHE-5VmC7ncNhKnsGXJRH5HXuXl_lVY5kdeFmBTVTDQG99BCbe5TmZQg/exec";
 
-let pendingTeams = [];
-let activeTeams = [];
-let tourDate = "";
-let selectedColor = "#3b82f6";
+    let pendingTeams = [];
+    let activeTeams = [];
+    let tourDate = "";
+    let selectedColor = "#3b82f6";
+    let isAdmin = false;
+    let currentGameFilter = "all";
 
-const teamNameInput = document.getElementById('teamName');
-const gameSelect = document.getElementById('gameSelect');
-const playersContainer = document.getElementById('playersContainer');
-const addPlayerBtn = document.getElementById('addPlayerBtn');
-const registerBtn = document.getElementById('registerBtn');
-const resultMsg = document.getElementById('resultMsg');
-const refreshBtn = document.getElementById('refreshBtn');
-const pendingListDiv = document.getElementById('pendingList');
-const activeListDiv = document.getElementById('activeList');
-const pendingCountSpan = document.getElementById('pendingCount');
-const activeCountSpan = document.getElementById('activeCount');
-const statusPanel = document.getElementById('statusPanel');
-const tourDateDisplay = document.getElementById('tourDateDisplay');
+    const teamNameInput = document.getElementById("teamName");
+    const gameSelect = document.getElementById("gameSelect");
+    const playersContainer = document.getElementById("playersContainer");
+    const addPlayerBtn = document.getElementById("addPlayerBtn");
+    const registerBtn = document.getElementById("registerBtn");
+    const resultMsg = document.getElementById("resultMsg");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const pendingListDiv = document.getElementById("pendingList");
+    const activeListDiv = document.getElementById("activeList");
+    const pendingCountSpan = document.getElementById("pendingCount");
+    const activeCountSpan = document.getElementById("activeCount");
+    const statusPanel = document.getElementById("statusPanel");
+    const adminLoginBtn = document.getElementById("adminLoginBtn");
+    const tourDateDisplay = document.getElementById("tourDateDisplay");
+    const dateEditArea = document.getElementById("dateEditArea");
+    const newDateInput = document.getElementById("newDateInput");
+    const saveDateBtn = document.getElementById("saveDateBtn");
+    const filterPanel = document.getElementById("filterPanel");
+    const filterBar = document.getElementById("filterBar");
 
-function escapeHtml(str) {
-    if (!str) return '';
-    return String(str).replace(/[&<>"]/g, function(m) {
-        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[m];
-    });
-}
+    const tabBtns = document.querySelectorAll(".tab-btn");
+    const pendingTab = document.getElementById("pendingTab");
+    const activeTab = document.getElementById("activeTab");
 
-function createPlayerRow(num, value = '') {
-    const wrap = document.createElement('div');
-    wrap.className = 'player-row';
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'player-input';
-    input.placeholder = 'Игрок ' + num;
-    input.value = value;
-
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.textContent = 'X';
-    btn.className = 'remove-btn';
-    btn.onclick = function() {
-        wrap.remove();
-        renumberPlayers();
-    };
-
-    wrap.appendChild(input);
-    wrap.appendChild(btn);
-    return wrap;
-}
-
-function renumberPlayers() {
-    document.querySelectorAll('.player-row').forEach((row, index) => {
-        const input = row.querySelector('.player-input');
-        if (input) input.placeholder = 'Игрок ' + (index + 1);
-    });
-}
-
-function initPlayers(count = 2) {
-    playersContainer.innerHTML = '';
-    for (let i = 1; i <= count; i++) {
-        playersContainer.appendChild(createPlayerRow(i));
+    function getGameEmoji(game) {
+      const emojis = {
+        "Dota 2": "🎮",
+        "CS2": "🎯",
+        "Fortnite": "🔫",
+        "Brawl Stars": "⭐",
+        "Valorant": "💣",
+        "Clash Royale": "👑"
+      };
+      return emojis[game] || "🎮";
     }
-}
 
-async function callScript(action, data = {}) {
-    try {
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/[&<>"]/g, function(m) {
+        return {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "\"": "&quot;"
+        }[m];
+      });
+    }
+
+    function setMessage(text, color = "#93c5fd") {
+      resultMsg.textContent = text;
+      resultMsg.style.color = color;
+    }
+
+    function createPlayerRow(num, value = "") {
+      const div = document.createElement("div");
+      div.className = "player-item";
+
+      const numberSpan = document.createElement("span");
+      numberSpan.className = "player-number";
+      numberSpan.textContent = num;
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "player-input";
+      input.placeholder = "Игрок " + num;
+      input.value = value;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "danger-btn";
+      removeBtn.type = "button";
+      removeBtn.textContent = "✕";
+      removeBtn.onclick = function() {
+        div.remove();
+        renumberPlayers();
+      };
+
+      div.appendChild(numberSpan);
+      div.appendChild(input);
+      div.appendChild(removeBtn);
+      return div;
+    }
+
+    function renumberPlayers() {
+      const rows = playersContainer.querySelectorAll(".player-item");
+      rows.forEach(function(row, idx) {
+        const numSpan = row.querySelector(".player-number");
+        const inp = row.querySelector(".player-input");
+        if (numSpan) numSpan.textContent = idx + 1;
+        if (inp) inp.placeholder = "Игрок " + (idx + 1);
+      });
+    }
+
+    function initPlayers(count = 2) {
+      playersContainer.innerHTML = "";
+      for (let i = 1; i <= count; i++) {
+        playersContainer.appendChild(createPlayerRow(i, ""));
+      }
+    }
+
+    function setupTabs() {
+      tabBtns.forEach(btn => {
+        btn.addEventListener("click", function() {
+          const tabId = this.getAttribute("data-tab");
+          tabBtns.forEach(b => b.classList.remove("active"));
+          this.classList.add("active");
+
+          if (tabId === "pending") {
+            pendingTab.classList.add("active");
+            activeTab.classList.remove("active");
+          } else {
+            pendingTab.classList.remove("active");
+            activeTab.classList.add("active");
+          }
+        });
+      });
+    }
+
+    function setupFilters() {
+      const filterBtns = filterBar.querySelectorAll(".filter-btn");
+      filterBtns.forEach(btn => {
+        btn.onclick = function() {
+          filterBtns.forEach(b => b.classList.remove("active"));
+          this.classList.add("active");
+          currentGameFilter = this.getAttribute("data-game");
+          renderAll();
+        };
+      });
+    }
+
+    document.querySelectorAll(".color-btn").forEach(btn => {
+      btn.addEventListener("click", function() {
+        document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
+        this.classList.add("selected");
+        selectedColor = this.getAttribute("data-color");
+      });
+    });
+
+    addPlayerBtn.addEventListener("click", function() {
+      const count = playersContainer.children.length + 1;
+      playersContainer.appendChild(createPlayerRow(count, ""));
+      renumberPlayers();
+    });
+
+    async function callScript(action, data = {}) {
+      try {
         const response = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            body: JSON.stringify({ action, ...data })
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify({ action, ...data })
         });
 
         const text = await response.text();
-        console.log(text);
+        console.log("POST RESPONSE:", text);
 
         try {
-            return JSON.parse(text);
+          return JSON.parse(text);
         } catch (e) {
-            return { status: 'error', message: 'Сервер вернул не JSON', raw: text };
+          return {
+            status: "error",
+            message: "Сервер вернул не JSON",
+            raw: text
+          };
         }
-    } catch (error) {
-        return { status: 'error', message: error.message };
+      } catch (error) {
+        console.error("POST ERROR:", error);
+        return {
+          status: "error",
+          message: error.message
+        };
+      }
     }
-}
 
-async function loadFromSheets() {
-    try {
-        statusPanel.textContent = 'Загрузка данных...';
-
-        const response = await fetch(APPS_SCRIPT_URL + '?_=' + Date.now());
+    async function loadFromSheets() {
+      try {
+        statusPanel.textContent = "🔄 Загрузка данных...";
+        const response = await fetch(APPS_SCRIPT_URL + "?_=" + Date.now());
         const text = await response.text();
+        console.log("GET RESPONSE:", text);
+
         const data = JSON.parse(text);
 
-        if (data.status !== 'success') {
-            throw new Error(data.message || 'Ошибка загрузки');
+        if (data.status !== "success") {
+          throw new Error(data.message || "Ошибка загрузки");
         }
 
+        tourDate = data.tourDate || "не установлена";
         pendingTeams = Array.isArray(data.pending) ? data.pending : [];
         activeTeams = Array.isArray(data.active) ? data.active : [];
-        tourDate = data.tourDate || 'не установлена';
 
-        tourDateDisplay.textContent = 'Дата тура: ' + tourDate;
+        tourDateDisplay.textContent = "📅 Дата тура: " + tourDate;
         pendingCountSpan.textContent = pendingTeams.length;
         activeCountSpan.textContent = activeTeams.length;
-        statusPanel.textContent = 'Данные загружены';
-
-        renderTeams();
-    } catch (error) {
+        statusPanel.textContent = "✅ Данные загружены";
+        renderAll();
+      } catch (error) {
         console.error(error);
-        statusPanel.textContent = 'Ошибка подключения к Google Sheets';
-    }
-}
-
-function renderTeams() {
-    if (pendingTeams.length === 0) {
-        pendingListDiv.innerHTML = '<div class="muted">Нет новых заявок</div>';
-    } else {
-        pendingListDiv.innerHTML = pendingTeams.map(team => `
-            <div class="team-card" style="border-left:4px solid ${escapeHtml(team.color || '#3b82f6')}">
-                <strong>${escapeHtml(team.teamName)}</strong>
-                <div class="muted">${escapeHtml(team.game || '')}</div>
-                <div class="chips">
-                    ${(team.players || []).map(player => `<span class="chip">${escapeHtml(player)}</span>`).join('')}
-                </div>
-                <div class="muted" style="margin-top:8px;">${escapeHtml(team.registeredAt || '')}</div>
-            </div>
-        `).join('');
+        statusPanel.textContent = "⚠️ Ошибка подключения. Проверьте Apps Script.";
+        pendingTeams = [];
+        activeTeams = [];
+        renderAll();
+      }
     }
 
-    if (activeTeams.length === 0) {
-        activeListDiv.innerHTML = '<div class="muted">Нет активных команд</div>';
-    } else {
-        activeListDiv.innerHTML = activeTeams.map(team => `
-            <div class="team-card" style="border-left:4px solid ${escapeHtml(team.color || '#10b981')}">
-                <strong>${escapeHtml(team.teamName)}</strong>
-                <div class="muted">${escapeHtml(team.game || '')}</div>
-                <div class="chips">
-                    ${(team.players || []).map(player => `<span class="chip">${escapeHtml(player)}</span>`).join('')}
-                </div>
-                <div class="muted" style="margin-top:8px;">${escapeHtml(team.registeredAt || '')}</div>
-            </div>
-        `).join('');
+    async function saveTourDate(date) {
+      const result = await callScript("setDate", { date });
+      if (result.status === "success") {
+        await loadFromSheets();
+        setMessage("✅ Дата тура изменена на " + date);
+        setTimeout(() => resultMsg.textContent = "", 3000);
+      } else {
+        setMessage("❌ " + (result.message || "Ошибка сохранения даты"), "#f87171");
+      }
     }
-}
 
-async function sendRequest() {
-    const teamName = teamNameInput.value.trim();
-
-    if (!teamName) {
-        resultMsg.textContent = 'Введите название команды';
+    function renderPending(filteredPending) {
+      if (filteredPending.length === 0) {
+        if (pendingTeams.length === 0) {
+          pendingListDiv.innerHTML = '<div class="empty-teams">📭 Нет новых заявок</div>';
+        } else {
+          pendingListDiv.innerHTML = '<div class="empty-teams">🎮 Нет заявок по игре "' + escapeHtml(currentGameFilter) + '"</div>';
+        }
         return;
+      }
+
+      let html = "";
+      filteredPending.forEach(team => {
+        const teamColor = team.color || "#f59e0b";
+        const players = Array.isArray(team.players) ? team.players : [];
+        html += '<div class="request-card" style="border-left-color:' + teamColor + '">';
+        html += '<div class="team-name-header">';
+        html += '<div class="team-name">';
+        html += '<span>' + getGameEmoji(team.game) + ' ' + escapeHtml(team.game || "") + '</span>';
+        html += '<strong style="color:' + teamColor + '">' + escapeHtml(team.teamName || "") + '</strong>';
+        html += '</div>';
+        html += '<span class="muted">' + players.length + ' игроков</span>';
+        html += '</div>';
+        html += '<div class="players-list-compact">';
+        players.forEach(player => {
+          html += '<span class="player-chip">⚡ ' + escapeHtml(player) + '</span>';
+        });
+        html += '</div>';
+        html += '<div class="muted" style="margin-top:10px;">📅 ' + escapeHtml(team.registeredAt || "") + '</div>';
+        html += '</div>';
+      });
+      pendingListDiv.innerHTML = html;
     }
 
-    const players = [];
-    let emptyExists = false;
+    function renderActive() {
+      if (activeTeams.length === 0) {
+        activeListDiv.innerHTML = '<div class="empty-teams">🎯 Нет активных команд</div>';
+        return;
+      }
 
-    document.querySelectorAll('.player-input').forEach(input => {
-        const val = input.value.trim();
-        if (!val) emptyExists = true;
+      let html = "";
+      activeTeams.forEach(team => {
+        const teamColor = team.color || "#10b981";
+        const players = Array.isArray(team.players) ? team.players : [];
+        html += '<div class="team-card-item" style="border-left-color:' + teamColor + '">';
+        html += '<div class="team-name-header">';
+        html += '<div class="team-name">';
+        html += '<span>' + getGameEmoji(team.game) + ' ' + escapeHtml(team.game || "") + '</span>';
+        html += '<strong style="color:' + teamColor + '">' + escapeHtml(team.teamName || "") + '</strong>';
+        html += '</div>';
+        html += '<span class="muted">' + players.length + ' игроков</span>';
+        html += '</div>';
+        html += '<div class="players-list-compact">';
+        players.forEach(player => {
+          html += '<span class="player-chip">⚡ ' + escapeHtml(player) + '</span>';
+        });
+        html += '</div>';
+        html += '<div class="muted" style="margin-top:10px;">📅 ' + escapeHtml(team.registeredAt || "") + '</div>';
+        html += '</div>';
+      });
+      activeListDiv.innerHTML = html;
+    }
+
+    function renderAll() {
+      let filteredPending = pendingTeams;
+      if (currentGameFilter !== "all") {
+        filteredPending = pendingTeams.filter(team => team.game === currentGameFilter);
+      }
+
+      pendingCountSpan.textContent = pendingTeams.length;
+      activeCountSpan.textContent = activeTeams.length;
+      dateEditArea.style.display = isAdmin ? "block" : "none";
+      filterPanel.style.display = isAdmin ? "block" : "none";
+
+      if (adminLoginBtn) {
+        adminLoginBtn.textContent = isAdmin ? "👑 Админ активен" : "🔐 Вход для админа";
+      }
+
+      renderPending(filteredPending);
+      renderActive();
+    }
+
+    function showPasswordModal() {
+      const modal = document.createElement("div");
+      modal.className = "password-modal";
+      modal.innerHTML = `
+        <div class="modal-content">
+          <h3>🔐 Вход для админа</h3>
+          <label for="adminPass">Пароль</label>
+          <input type="password" id="adminPass" placeholder="Введите пароль" />
+          <div class="modal-actions">
+            <button id="modalOk" class="primary-btn" type="button">Войти</button>
+            <button id="modalCancel" class="secondary-btn" type="button">Отмена</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      const input = modal.querySelector("#adminPass");
+      const okBtn = modal.querySelector("#modalOk");
+      const cancelBtn = modal.querySelector("#modalCancel");
+
+      okBtn.onclick = async function() {
+        const password = input.value.trim();
+        if (!password) {
+          setMessage("❌ Введите пароль", "#f87171");
+          return;
+        }
+
+        okBtn.disabled = true;
+        okBtn.textContent = "Проверка...";
+
+        const result = await callScript("adminLogin", { password });
+
+        okBtn.disabled = false;
+        okBtn.textContent = "Войти";
+
+        if (result.status === "success") {
+          isAdmin = true;
+          renderAll();
+          setMessage("✅ Режим администратора включен");
+          modal.remove();
+          setTimeout(() => resultMsg.textContent = "", 3000);
+        } else {
+          isAdmin = false;
+          renderAll();
+          setMessage("❌ Неверный пароль", "#f87171");
+        }
+      };
+
+      cancelBtn.onclick = function() {
+        modal.remove();
+      };
+
+      input.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") okBtn.click();
+      });
+
+      input.focus();
+    }
+
+    async function sendRequest() {
+      const teamName = teamNameInput.value.trim();
+      if (!teamName) {
+        setMessage("❌ Введите название команды", "#f87171");
+        return;
+      }
+
+      const players = [];
+      let empty = false;
+
+      document.querySelectorAll(".player-input").forEach(inp => {
+        const val = inp.value.trim();
+        if (!val) empty = true;
         else players.push(val);
-    });
+      });
 
-    if (emptyExists || players.length === 0) {
-        resultMsg.textContent = 'Заполните имена всех игроков';
+      if (empty || players.length === 0) {
+        setMessage("❌ Заполните имена всех игроков", "#f87171");
         return;
-    }
+      }
 
-    registerBtn.disabled = true;
-    registerBtn.textContent = 'Отправка...';
+      registerBtn.disabled = true;
+      registerBtn.textContent = "⏳ Отправка...";
 
-    const payload = {
+      const newTeam = {
         id: String(Date.now()),
-        teamName: teamName,
+        teamName,
         game: gameSelect.value,
         color: selectedColor,
-        players: players,
-        registeredAt: new Date().toLocaleString('ru-RU')
-    };
+        players,
+        registeredAt: new Date().toLocaleString("ru-RU")
+      };
 
-    const result = await callScript('addTeam', payload);
+      const result = await callScript("addTeam", newTeam);
 
-    registerBtn.disabled = false;
-    registerBtn.textContent = 'Отправить заявку';
+      registerBtn.disabled = false;
+      registerBtn.textContent = "📨 Отправить заявку";
 
-    if (result.status !== 'success') {
-        resultMsg.textContent = 'Ошибка: ' + (result.message || 'не удалось отправить');
+      if (result.status !== "success") {
+        setMessage("❌ " + (result.message || "Ошибка отправки заявки"), "#f87171");
         return;
+      }
+
+      await loadFromSheets();
+      setMessage('✅ Заявка "' + teamName + '" отправлена');
+
+      teamNameInput.value = "";
+      initPlayers(2);
+      selectedColor = "#3b82f6";
+      document.querySelectorAll(".color-btn").forEach(btn => {
+        btn.classList.remove("selected");
+        if (btn.getAttribute("data-color") === "#3b82f6") {
+          btn.classList.add("selected");
+        }
+      });
+
+      document.querySelector('.tab-btn[data-tab="pending"]').click();
+      setTimeout(() => resultMsg.textContent = "", 3000);
     }
 
-    resultMsg.textContent = 'Заявка отправлена';
-    teamNameInput.value = '';
-    initPlayers(2);
-    await loadFromSheets();
-
-    setTimeout(() => {
-        resultMsg.textContent = '';
-    }, 3000);
-}
-
-document.querySelectorAll('.color-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
-        this.classList.add('selected');
-        selectedColor = this.dataset.color;
+    refreshBtn.addEventListener("click", async function() {
+      await loadFromSheets();
+      setMessage("📋 Данные обновлены");
+      setTimeout(() => resultMsg.textContent = "", 2000);
     });
-});
 
-addPlayerBtn.addEventListener('click', function() {
-    playersContainer.appendChild(createPlayerRow(playersContainer.children.length + 1));
-});
+    registerBtn.addEventListener("click", sendRequest);
+    adminLoginBtn.addEventListener("click", showPasswordModal);
 
-registerBtn.addEventListener('click', sendRequest);
-refreshBtn.addEventListener('click', loadFromSheets);
+    saveDateBtn.addEventListener("click", async function() {
+      if (!isAdmin) {
+        setMessage("⛔ Только администратор может менять дату", "#f87171");
+        return;
+      }
 
-initPlayers(2);
-loadFromSheets();
-</script>
+      const newDate = newDateInput.value;
+      if (!newDate) {
+        setMessage("❌ Выберите дату", "#f87171");
+        return;
+      }
+
+      const formattedDate = newDate.split("-").reverse().join(".");
+      await saveTourDate(formattedDate);
+    });
+
+    initPlayers(2);
+    setupTabs();
+    setupFilters();
+    loadFromSheets();
+  </script>
 </body>
 </html>
