@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Турнирные заявки — Жёлто-зелёная тема</title>
+  <title>Турнирные заявки — Аквамариновая тема</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,9 +12,9 @@
     }
 
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #1a3a1a, #2a3a1a, #3a3a1a);
-      color: #f5f5cf;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #0a2a3a, #0a3a3a, #0a2a3a);
+      color: #bff5ff;
       min-height: 100vh;
       padding: 20px;
     }
@@ -25,17 +25,18 @@
     }
 
     .panel {
-      background: rgba(20, 35, 10, 0.88);
-      border: 1px solid rgba(220, 220, 30, 0.25);
-      border-radius: 18px;
-      padding: 20px;
+      background: rgba(8, 32, 40, 0.9);
+      border: 1px solid rgba(0, 255, 200, 0.25);
+      border-radius: 20px;
+      padding: 22px;
       margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
     }
 
     h1, h2, h3 {
       margin-bottom: 14px;
+      color: #7fffd4;
     }
 
     .topbar {
@@ -47,13 +48,13 @@
     }
 
     .muted {
-      color: #d4e67a;
+      color: #7fd4b0;
       font-size: 14px;
     }
 
     .status {
       margin-top: 10px;
-      color: #e6f27a;
+      color: #4aedd0;
       font-size: 14px;
     }
 
@@ -67,24 +68,26 @@
       display: block;
       margin-bottom: 6px;
       margin-top: 12px;
-      color: #e2f0a8;
+      color: #8febd0;
       font-size: 14px;
+      font-weight: 500;
     }
 
     input, select, button {
       width: 100%;
-      border: 1px solid #6a7a2a;
+      border: 1px solid #2a6a6a;
       border-radius: 12px;
-      background: #1a2a0a;
-      color: #ffffdd;
+      background: #0a252a;
+      color: #d4f5ff;
       padding: 12px 14px;
       font-size: 15px;
+      transition: all 0.2s;
     }
 
     input:focus, select:focus {
       outline: none;
-      border-color: #f5e56b;
-      box-shadow: 0 0 0 3px rgba(230, 220, 60, 0.3);
+      border-color: #3affd0;
+      box-shadow: 0 0 0 3px rgba(58, 255, 208, 0.2);
     }
 
     button {
@@ -96,24 +99,28 @@
     button:hover {
       opacity: 0.92;
       transform: translateY(-1px);
+      filter: brightness(1.05);
     }
 
     .primary-btn {
-      background: linear-gradient(135deg, #c5b358, #a3b34a);
+      background: linear-gradient(135deg, #1a9f8f, #0d6b6b);
       margin-top: 16px;
-      color: #1f2a0a;
+      border: none;
+      color: white;
+      font-size: 16px;
     }
 
     .secondary-btn {
-      background: #2f3e1a;
-      border-color: #aab85a;
+      background: #1a4a4a;
+      border-color: #3a8a8a;
     }
 
     .danger-btn {
-      background: #b5651e;
+      background: #cc6b4a;
       width: 48px;
       flex: 0 0 48px;
       padding: 0;
+      border: none;
     }
 
     .players-list {
@@ -132,7 +139,7 @@
     .player-number {
       width: 30px;
       text-align: center;
-      color: #f5dd6e;
+      color: #3affd0;
       font-weight: bold;
     }
 
@@ -148,17 +155,19 @@
     }
 
     .color-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
       border: 2px solid transparent;
       cursor: pointer;
       padding: 0;
+      transition: 0.1s;
     }
 
     .color-btn.selected {
-      border-color: #ffd966;
-      box-shadow: 0 0 0 3px rgba(220, 200, 50, 0.5);
+      border-color: #ffffff;
+      box-shadow: 0 0 0 2px rgba(58, 255, 208, 0.8);
+      transform: scale(1.05);
     }
 
     .toolbar {
@@ -176,19 +185,21 @@
     .tabs {
       display: flex;
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       flex-wrap: wrap;
     }
 
     .tab-btn {
       width: auto;
-      padding: 10px 14px;
-      background: #2f3e1a;
+      padding: 10px 16px;
+      background: #1a4a4a;
+      border: none;
     }
 
     .tab-btn.active {
-      background: linear-gradient(135deg, #c5b358, #a3b34a);
-      color: #1f2e06;
+      background: linear-gradient(135deg, #1a9f8f, #0d6b6b);
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,255,200,0.3);
     }
 
     .tab-content {
@@ -203,15 +214,18 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      max-height: 500px;
+      overflow-y: auto;
     }
 
     .request-card,
     .team-card-item {
-      background: #1c2a0c;
-      border: 1px solid #6a7a30;
-      border-left: 5px solid #dbb42c;
+      background: #0a252a;
+      border: 1px solid #2a8a7a;
+      border-left: 5px solid #3affd0;
       border-radius: 14px;
       padding: 14px;
+      transition: 0.2s;
     }
 
     .team-name-header {
@@ -237,23 +251,24 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      margin: 8px 0;
     }
 
     .player-chip {
-      background: #2a3a14;
-      color: #f0e6a0;
-      padding: 6px 10px;
-      border-radius: 999px;
+      background: #1a4a5a;
+      color: #b0ffe0;
+      padding: 6px 12px;
+      border-radius: 20px;
       font-size: 13px;
     }
 
     .empty-teams {
       padding: 20px;
       text-align: center;
-      color: #d6e68a;
-      background: #1c2a0c;
+      color: #7fd4c0;
+      background: #0a252a;
       border-radius: 14px;
-      border: 1px dashed #6a7a30;
+      border: 1px dashed #2a8a7a;
     }
 
     .filter-bar {
@@ -266,20 +281,19 @@
     .filter-btn {
       width: auto;
       padding: 8px 12px;
-      background: #2f3e1a;
-      font-size: 14px;
+      background: #1a4a4a;
+      font-size: 13px;
     }
 
     .filter-btn.active {
-      background: linear-gradient(135deg, #c5b358, #a3b34a);
-      color: #1f2e06;
+      background: linear-gradient(135deg, #1a9f8f, #0d6b6b);
     }
 
     .admin-area {
       display: none;
       margin-top: 16px;
       padding-top: 16px;
-      border-top: 1px solid #6a7a2a;
+      border-top: 1px solid #2a8a7a;
     }
 
     .date-row {
@@ -306,25 +320,30 @@
       justify-content: flex-end;
       flex-wrap: wrap;
     }
+    
     .admin-btn-accept {
-      background: #5a8f2c;
+      background: #2a9f6f;
       width: auto;
       padding: 8px 14px;
       font-size: 13px;
       border: none;
+      color: white;
     }
+    
     .admin-btn-delete {
-      background: #b5651e;
+      background: #cc6b4a;
       width: auto;
       padding: 8px 14px;
       font-size: 13px;
       border: none;
     }
+    
     .admin-btn-accept:hover {
-      background: #437a1a;
+      background: #1f8a5f;
     }
+    
     .admin-btn-delete:hover {
-      background: #9a4a12;
+      background: #b55a3a;
     }
 
     .password-modal {
@@ -341,22 +360,31 @@
     .modal-content {
       width: 100%;
       max-width: 380px;
-      background: #1c2a0c;
-      border: 1px solid #c5b358;
-      border-radius: 16px;
-      padding: 20px;
+      background: #0a252a;
+      border: 1px solid #3affd0;
+      border-radius: 20px;
+      padding: 24px;
     }
 
     .modal-actions {
       display: flex;
       gap: 10px;
-      margin-top: 14px;
+      margin-top: 20px;
     }
 
     @media (max-width: 900px) {
       .grid {
         grid-template-columns: 1fr;
       }
+    }
+
+    /* Стиль для сообщений об ошибках */
+    .error-message {
+      color: #ffaa88;
+      background: rgba(200, 80, 40, 0.2);
+      padding: 8px;
+      border-radius: 8px;
+      border-left: 3px solid #ff8866;
     }
   </style>
 </head>
@@ -367,7 +395,7 @@
         <div>
           <h1>🎮 Турнирные заявки</h1>
           <div class="muted" id="tourDateDisplay">📅 Дата тура: загрузка...</div>
-          <div class="status" id="statusPanel">Подключение к Google Sheets...</div>
+          <div class="status" id="statusPanel">Подключение...</div>
         </div>
         <div class="toolbar">
           <button class="secondary-btn" id="refreshBtn" type="button">🔄 Обновить</button>
@@ -380,10 +408,10 @@
       <div class="panel">
         <h2>📝 Подать заявку</h2>
 
-        <label for="teamName">🏷️ Название команды</label>
+        <label for="teamName">🏷️ Название команды *</label>
         <input id="teamName" type="text" placeholder="Введите название команды" />
 
-        <label for="gameSelect">🎲 Игра</label>
+        <label for="gameSelect">🎲 Игра *</label>
         <select id="gameSelect">
           <option value="Dota 2">🎮 Dota 2</option>
           <option value="CS2">🎯 CS2</option>
@@ -395,15 +423,15 @@
 
         <label>🎨 Цвет команды</label>
         <div class="color-row">
-          <button type="button" class="color-btn selected" data-color="#dbb42c" style="background:#dbb42c;"></button>
-          <button type="button" class="color-btn" data-color="#c9d13b" style="background:#c9d13b;"></button>
-          <button type="button" class="color-btn" data-color="#6fbf1c" style="background:#6fbf1c;"></button>
-          <button type="button" class="color-btn" data-color="#e0b025" style="background:#e0b025;"></button>
-          <button type="button" class="color-btn" data-color="#9acd32" style="background:#9acd32;"></button>
-          <button type="button" class="color-btn" data-color="#f4d03f" style="background:#f4d03f;"></button>
+          <button type="button" class="color-btn selected" data-color="#3affd0" style="background:#3affd0;"></button>
+          <button type="button" class="color-btn" data-color="#ff6b6b" style="background:#ff6b6b;"></button>
+          <button type="button" class="color-btn" data-color="#4d9eff" style="background:#4d9eff;"></button>
+          <button type="button" class="color-btn" data-color="#f5a623" style="background:#f5a623;"></button>
+          <button type="button" class="color-btn" data-color="#a855f7" style="background:#a855f7;"></button>
+          <button type="button" class="color-btn" data-color="#ff66b5" style="background:#ff66b5;"></button>
         </div>
 
-        <label>👥 Игроки</label>
+        <label>👥 Игроки (минимум 2) *</label>
         <div id="playersContainer" class="players-list"></div>
 
         <div class="toolbar">
@@ -411,7 +439,7 @@
         </div>
 
         <button id="registerBtn" class="primary-btn" type="button">📨 Отправить заявку</button>
-        <div class="status" id="resultMsg"></div>
+        <div id="resultMsg" class="status"></div>
       </div>
 
       <div class="panel">
@@ -459,16 +487,19 @@
   </div>
 
   <script>
-    // ==================== ВАШ URL - ВСТАВЬТЕ СЮДА ВАШУ ССЫЛКУ ====================
+    // ==================== ВАШ URL GOOGLE APPS SCRIPT ====================
+    // ⚠️ ВСТАВЬТЕ СЮДА ВАШ ТОЧНЫЙ URL
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCjMDm8q_RzaoLj5xLW5ItoEOwozKaj-4iHvfyEIDBGVRd6WOmwSrXoKknFFWnCNjYBg/exec";
-
+    
+    // ==================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ====================
     let pendingTeams = [];
     let activeTeams = [];
     let tourDate = "";
-    let selectedColor = "#dbb42c";
+    let selectedColor = "#3affd0";
     let isAdmin = false;
     let currentGameFilter = "all";
 
+    // DOM элементы
     const teamNameInput = document.getElementById("teamName");
     const gameSelect = document.getElementById("gameSelect");
     const playersContainer = document.getElementById("playersContainer");
@@ -493,14 +524,11 @@
     const pendingTab = document.getElementById("pendingTab");
     const activeTab = document.getElementById("activeTab");
 
+    // ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
     function getGameEmoji(game) {
       const emojis = {
-        "Dota 2": "🎮",
-        "CS2": "🎯",
-        "Fortnite": "🔫",
-        "Brawl Stars": "⭐",
-        "Valorant": "💣",
-        "Clash Royale": "👑"
+        "Dota 2": "🎮", "CS2": "🎯", "Fortnite": "🔫",
+        "Brawl Stars": "⭐", "Valorant": "💣", "Clash Royale": "👑"
       };
       return emojis[game] || "🎮";
     }
@@ -517,26 +545,31 @@
 
     function setMessage(text, isError = false) {
       resultMsg.textContent = text;
-      resultMsg.style.color = isError ? "#f9b54c" : "#e6f27a";
+      resultMsg.style.color = isError ? "#ffaa88" : "#4aedd0";
+      if (isError) {
+        resultMsg.classList.add("error-message");
+      } else {
+        resultMsg.classList.remove("error-message");
+      }
       setTimeout(() => {
-        if (resultMsg.textContent === text) resultMsg.textContent = "";
-      }, 4000);
+        if (resultMsg.textContent === text) {
+          resultMsg.textContent = "";
+          resultMsg.classList.remove("error-message");
+        }
+      }, 5000);
     }
 
     function createPlayerRow(num, value = "") {
       const div = document.createElement("div");
       div.className = "player-item";
-
       const numberSpan = document.createElement("span");
       numberSpan.className = "player-number";
       numberSpan.textContent = num;
-
       const input = document.createElement("input");
       input.type = "text";
       input.className = "player-input";
       input.placeholder = "Игрок " + num;
       input.value = value;
-
       const removeBtn = document.createElement("button");
       removeBtn.className = "danger-btn";
       removeBtn.type = "button";
@@ -545,7 +578,6 @@
         div.remove();
         renumberPlayers();
       };
-
       div.appendChild(numberSpan);
       div.appendChild(input);
       div.appendChild(removeBtn);
@@ -575,7 +607,6 @@
           const tabId = this.getAttribute("data-tab");
           tabBtns.forEach(b => b.classList.remove("active"));
           this.classList.add("active");
-
           if (tabId === "pending") {
             pendingTab.classList.add("active");
             activeTab.classList.remove("active");
@@ -594,11 +625,12 @@
           filterBtns.forEach(b => b.classList.remove("active"));
           this.classList.add("active");
           currentGameFilter = this.getAttribute("data-game");
-          renderAll();
+          renderPending();
         };
       });
     }
 
+    // Выбор цвета
     document.querySelectorAll(".color-btn").forEach(btn => {
       btn.addEventListener("click", function() {
         document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("selected"));
@@ -613,20 +645,34 @@
       renumberPlayers();
     });
 
+    // ==================== РАБОТА С GOOGLE APPS SCRIPT ====================
     async function callScript(action, data = {}) {
       try {
+        const payload = JSON.stringify({ action, ...data });
+        console.log(`📤 Отправка [${action}]:`, payload);
+        
         const response = await fetch(APPS_SCRIPT_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action, ...data })
+          headers: { 
+            "Content-Type": "application/json"
+          },
+          body: payload
         });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const text = await response.text();
+        console.log(`📥 Ответ [${action}]:`, text);
+        
         try {
           return JSON.parse(text);
         } catch(e) {
-          return { status: "error", message: "Сервер вернул не JSON: " + text.substring(0, 100) };
+          return { status: "error", message: "Сервер вернул не JSON: " + text.substring(0, 200) };
         }
       } catch(error) {
+        console.error(`❌ Ошибка ${action}:`, error);
         return { status: "error", message: error.message };
       }
     }
@@ -635,19 +681,30 @@
       try {
         statusPanel.textContent = "🔄 Загрузка данных...";
         const response = await fetch(APPS_SCRIPT_URL + "?t=" + Date.now());
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
         const data = await response.json();
-        if(data.status !== "success") throw new Error(data.message || "Ошибка загрузки");
+        console.log("📥 Загружены данные:", data);
+        
+        if (data.status !== "success") {
+          throw new Error(data.message || "Ошибка загрузки");
+        }
+        
         tourDate = data.tourDate || "не установлена";
         pendingTeams = Array.isArray(data.pending) ? data.pending : [];
         activeTeams = Array.isArray(data.active) ? data.active : [];
+        
         tourDateDisplay.textContent = "📅 Дата тура: " + tourDate;
         pendingCountSpan.textContent = pendingTeams.length;
         activeCountSpan.textContent = activeTeams.length;
-        statusPanel.textContent = "✅ Данные загружены";
+        statusPanel.textContent = "✅ Данные загружены (" + new Date().toLocaleTimeString() + ")";
         renderAll();
       } catch(error) {
-        console.error(error);
-        statusPanel.textContent = "⚠️ Ошибка подключения: " + error.message;
+        console.error("❌ Ошибка загрузки:", error);
+        statusPanel.textContent = "⚠️ Ошибка: " + error.message;
         pendingTeams = [];
         activeTeams = [];
         renderAll();
@@ -689,44 +746,45 @@
       }
     }
 
-    function renderPending(filteredPending) {
-      if (filteredPending.length === 0) {
-        if (pendingTeams.length === 0) {
-          pendingListDiv.innerHTML = '<div class="empty-teams">📭 Нет новых заявок</div>';
-        } else {
-          pendingListDiv.innerHTML = '<div class="empty-teams">🎮 Нет заявок по игре "' + escapeHtml(currentGameFilter) + '"</div>';
-        }
+    // ==================== ОТОБРАЖЕНИЕ ====================
+    function renderPending() {
+      let filtered = currentGameFilter === "all" 
+        ? pendingTeams 
+        : pendingTeams.filter(team => team.game === currentGameFilter);
+      
+      if (filtered.length === 0) {
+        pendingListDiv.innerHTML = '<div class="empty-teams">📭 Нет новых заявок</div>';
         return;
       }
       
       let html = "";
-      filteredPending.forEach(team => {
-        const teamColor = team.color || "#dbb42c";
+      filtered.forEach(team => {
+        const teamColor = team.color || "#3affd0";
         const players = Array.isArray(team.players) ? team.players : [];
-        const teamId = team.id || team._id || String(Date.now());
+        const teamId = team.id || "no_id";
         
-        html += '<div class="request-card" style="border-left-color:' + teamColor + '" data-team-id="' + escapeHtml(teamId) + '">';
-        html += '<div class="team-name-header">';
-        html += '<div class="team-name">';
-        html += '<span>' + getGameEmoji(team.game) + ' ' + escapeHtml(team.game) + '</span>';
-        html += '<strong style="color:' + teamColor + '">' + escapeHtml(team.teamName) + '</strong>';
-        html += '</div>';
-        html += '<span class="muted">' + players.length + ' игроков</span>';
-        html += '</div>';
-        html += '<div class="players-list-compact">';
+        html += `<div class="request-card" style="border-left-color: ${teamColor}">`;
+        html += `<div class="team-name-header">`;
+        html += `<div class="team-name">`;
+        html += `<span>${getGameEmoji(team.game)} ${escapeHtml(team.game)}</span>`;
+        html += `<strong style="color: ${teamColor}">${escapeHtml(team.teamName)}</strong>`;
+        html += `</div>`;
+        html += `<span class="muted">${players.length} игроков</span>`;
+        html += `</div>`;
+        html += `<div class="players-list-compact">`;
         players.forEach(player => {
-          html += '<span class="player-chip">⚡ ' + escapeHtml(player) + '</span>';
+          html += `<span class="player-chip">⚡ ${escapeHtml(player)}</span>`;
         });
-        html += '</div>';
-        html += '<div class="muted" style="margin-top:10px;">📅 ' + escapeHtml(team.registeredAt || "") + '</div>';
+        html += `</div>`;
+        html += `<div class="muted" style="margin-top:10px;">📅 ${escapeHtml(team.registeredAt || "")}</div>`;
         
         if (isAdmin) {
-          html += '<div class="admin-actions">';
+          html += `<div class="admin-actions">`;
           html += `<button class="admin-btn-accept" data-id="${escapeHtml(teamId)}" data-name="${escapeHtml(team.teamName)}" data-game="${escapeHtml(team.game)}">✅ Принять</button>`;
           html += `<button class="admin-btn-delete" data-id="${escapeHtml(teamId)}" data-name="${escapeHtml(team.teamName)}" data-source="pending" data-game="${escapeHtml(team.game)}">❌ Удалить</button>`;
-          html += '</div>';
+          html += `</div>`;
         }
-        html += '</div>';
+        html += `</div>`;
       });
       
       pendingListDiv.innerHTML = html;
@@ -735,21 +793,13 @@
         document.querySelectorAll('#pendingList .admin-btn-accept').forEach(btn => {
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const id = btn.getAttribute('data-id');
-            const name = btn.getAttribute('data-name');
-            const game = btn.getAttribute('data-game');
-            approveTeam(id, name, game);
+            approveTeam(btn.dataset.id, btn.dataset.name, btn.dataset.game);
           });
         });
-        
         document.querySelectorAll('#pendingList .admin-btn-delete').forEach(btn => {
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const id = btn.getAttribute('data-id');
-            const name = btn.getAttribute('data-name');
-            const source = btn.getAttribute('data-source');
-            const game = btn.getAttribute('data-game');
-            deleteTeam(id, name, source, game);
+            deleteTeam(btn.dataset.id, btn.dataset.name, btn.dataset.source, btn.dataset.game);
           });
         });
       }
@@ -763,31 +813,31 @@
       
       let html = "";
       activeTeams.forEach(team => {
-        const teamColor = team.color || "#9acd32";
+        const teamColor = team.color || "#4d9eff";
         const players = Array.isArray(team.players) ? team.players : [];
-        const teamId = team.id || team._id || String(Date.now());
+        const teamId = team.id || "no_id";
         
-        html += '<div class="team-card-item" style="border-left-color:' + teamColor + '" data-team-id="' + escapeHtml(teamId) + '">';
-        html += '<div class="team-name-header">';
-        html += '<div class="team-name">';
-        html += '<span>' + getGameEmoji(team.game) + ' ' + escapeHtml(team.game) + '</span>';
-        html += '<strong style="color:' + teamColor + '">' + escapeHtml(team.teamName) + '</strong>';
-        html += '</div>';
-        html += '<span class="muted">' + players.length + ' игроков</span>';
-        html += '</div>';
-        html += '<div class="players-list-compact">';
+        html += `<div class="team-card-item" style="border-left-color: ${teamColor}">`;
+        html += `<div class="team-name-header">`;
+        html += `<div class="team-name">`;
+        html += `<span>${getGameEmoji(team.game)} ${escapeHtml(team.game)}</span>`;
+        html += `<strong style="color: ${teamColor}">${escapeHtml(team.teamName)}</strong>`;
+        html += `</div>`;
+        html += `<span class="muted">${players.length} игроков</span>`;
+        html += `</div>`;
+        html += `<div class="players-list-compact">`;
         players.forEach(player => {
-          html += '<span class="player-chip">⚡ ' + escapeHtml(player) + '</span>';
+          html += `<span class="player-chip">⚡ ${escapeHtml(player)}</span>`;
         });
-        html += '</div>';
-        html += '<div class="muted" style="margin-top:10px;">📅 ' + escapeHtml(team.registeredAt || "") + '</div>';
+        html += `</div>`;
+        html += `<div class="muted" style="margin-top:10px;">📅 ${escapeHtml(team.registeredAt || "")}</div>`;
         
         if (isAdmin) {
-          html += '<div class="admin-actions">';
-          html += `<button class="admin-btn-delete" data-id="${escapeHtml(teamId)}" data-name="${escapeHtml(team.teamName)}" data-source="active" data-game="${escapeHtml(team.game)}">❌ Удалить из активных</button>`;
-          html += '</div>';
+          html += `<div class="admin-actions">`;
+          html += `<button class="admin-btn-delete" data-id="${escapeHtml(teamId)}" data-name="${escapeHtml(team.teamName)}" data-source="active" data-game="${escapeHtml(team.game)}">❌ Удалить</button>`;
+          html += `</div>`;
         }
-        html += '</div>';
+        html += `</div>`;
       });
       
       activeListDiv.innerHTML = html;
@@ -796,41 +846,29 @@
         document.querySelectorAll('#activeList .admin-btn-delete').forEach(btn => {
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const id = btn.getAttribute('data-id');
-            const name = btn.getAttribute('data-name');
-            const source = btn.getAttribute('data-source');
-            const game = btn.getAttribute('data-game');
-            deleteTeam(id, name, source, game);
+            deleteTeam(btn.dataset.id, btn.dataset.name, btn.dataset.source, btn.dataset.game);
           });
         });
       }
     }
 
     function renderAll() {
-      let filteredPending = pendingTeams;
-      if (currentGameFilter !== "all") {
-        filteredPending = pendingTeams.filter(team => team.game === currentGameFilter);
-      }
-      
-      pendingCountSpan.textContent = pendingTeams.length;
-      activeCountSpan.textContent = activeTeams.length;
-      
-      if (dateEditArea) dateEditArea.style.display = isAdmin ? "block" : "none";
-      if (filterPanel) filterPanel.style.display = isAdmin ? "block" : "none";
-      if (adminLoginBtn) adminLoginBtn.textContent = isAdmin ? "👑 Админ активен" : "🔐 Вход для админа";
-      
-      renderPending(filteredPending);
+      renderPending();
       renderActive();
+      dateEditArea.style.display = isAdmin ? "block" : "none";
+      filterPanel.style.display = isAdmin ? "block" : "none";
+      adminLoginBtn.textContent = isAdmin ? "👑 Админ активен" : "🔐 Вход для админа";
     }
 
+    // ==================== АДМИН ВХОД ====================
     function showPasswordModal() {
       const modal = document.createElement("div");
       modal.className = "password-modal";
       modal.innerHTML = `
         <div class="modal-content">
-          <h3>🔐 Вход для админа</h3>
+          <h3>🔐 Вход для администратора</h3>
           <label for="adminPass">Пароль</label>
-          <input type="password" id="adminPass" placeholder="Введите пароль" />
+          <input type="password" id="adminPass" placeholder="Введите пароль" autocomplete="off" />
           <div class="modal-actions">
             <button id="modalOk" class="primary-btn" type="button">Войти</button>
             <button id="modalCancel" class="secondary-btn" type="button">Отмена</button>
@@ -867,38 +905,34 @@
         }
       };
       
-      cancelBtn.onclick = function() {
-        modal.remove();
-      };
-      
-      input.addEventListener("keydown", function(e) {
-        if (e.key === "Enter") okBtn.click();
-      });
-      
+      cancelBtn.onclick = function() { modal.remove(); };
+      input.addEventListener("keydown", function(e) { if (e.key === "Enter") okBtn.click(); });
       input.focus();
     }
 
+    // ==================== ОТПРАВКА ЗАЯВКИ ====================
     async function sendRequest() {
       const teamName = teamNameInput.value.trim();
       if (!teamName) {
         setMessage("❌ Введите название команды", true);
+        teamNameInput.focus();
         return;
       }
       
       const players = [];
       let empty = false;
-      
       document.querySelectorAll(".player-input").forEach(inp => {
         const val = inp.value.trim();
         if (!val) empty = true;
         else players.push(val);
       });
       
-      if (empty || players.length === 0) {
-        setMessage("❌ Заполните имена всех игроков", true);
+      if (empty || players.length < 2) {
+        setMessage("❌ Заполните имена всех игроков (минимум 2)", true);
         return;
       }
       
+      // Блокируем кнопку
       registerBtn.disabled = true;
       registerBtn.textContent = "⏳ Отправка...";
       
@@ -911,32 +945,36 @@
         registeredAt: new Date().toLocaleString("ru-RU")
       };
       
+      console.log("📤 Отправка заявки:", newTeam);
+      
       const result = await callScript("addTeam", newTeam);
       
       registerBtn.disabled = false;
       registerBtn.textContent = "📨 Отправить заявку";
       
-      if (result.status !== "success") {
-        setMessage("❌ " + (result.message || "Ошибка отправки заявки"), true);
-        return;
+      if (result.status === "success") {
+        await loadFromSheets();
+        setMessage(`✅ Заявка "${teamName}" успешно отправлена!`);
+        
+        // Очищаем форму
+        teamNameInput.value = "";
+        initPlayers(2);
+        selectedColor = "#3affd0";
+        document.querySelectorAll(".color-btn").forEach(btn => {
+          btn.classList.remove("selected");
+          if (btn.getAttribute("data-color") === "#3affd0") {
+            btn.classList.add("selected");
+          }
+        });
+        
+        // Переключаемся на вкладку с новыми заявками
+        document.querySelector('.tab-btn[data-tab="pending"]').click();
+      } else {
+        setMessage(`❌ Ошибка отправки: ${result.message}`, true);
       }
-      
-      await loadFromSheets();
-      setMessage('✅ Заявка "' + teamName + '" отправлена');
-      
-      teamNameInput.value = "";
-      initPlayers(2);
-      selectedColor = "#dbb42c";
-      document.querySelectorAll(".color-btn").forEach(btn => {
-        btn.classList.remove("selected");
-        if (btn.getAttribute("data-color") === "#dbb42c") {
-          btn.classList.add("selected");
-        }
-      });
-      
-      document.querySelector('.tab-btn[data-tab="pending"]').click();
     }
 
+    // ==================== ОБРАБОТЧИКИ СОБЫТИЙ ====================
     refreshBtn.addEventListener("click", async () => {
       await loadFromSheets();
       setMessage("📋 Данные обновлены");
@@ -950,17 +988,16 @@
         setMessage("⛔ Только администратор может менять дату", true);
         return;
       }
-      
       const newDate = newDateInput.value;
       if (!newDate) {
         setMessage("❌ Выберите дату", true);
         return;
       }
-      
       const formattedDate = newDate.split("-").reverse().join(".");
       await saveTourDate(formattedDate);
     });
     
+    // ==================== ЗАПУСК ====================
     initPlayers(2);
     setupTabs();
     setupFilters();
