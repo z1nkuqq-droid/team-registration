@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Турнирные заявки | Админ-панель</title>
+  <title>Турнирные заявки — Жёлто-зелёная тема</title>
   <style>
     * {
       box-sizing: border-box;
@@ -13,20 +13,20 @@
 
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-      color: #fff;
+      background: linear-gradient(135deg, #1a3a1a, #2a3a1a, #3a3a1a);
+      color: #f5f5cf;
       min-height: 100vh;
       padding: 20px;
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1100px;
       margin: 0 auto;
     }
 
     .panel {
-      background: rgba(10, 25, 47, 0.88);
-      border: 1px solid rgba(0, 255, 255, 0.15);
+      background: rgba(20, 35, 10, 0.88);
+      border: 1px solid rgba(220, 220, 30, 0.25);
       border-radius: 18px;
       padding: 20px;
       margin-bottom: 20px;
@@ -47,13 +47,13 @@
     }
 
     .muted {
-      color: #a0a0ff;
+      color: #d4e67a;
       font-size: 14px;
     }
 
     .status {
       margin-top: 10px;
-      color: #00ffcc;
+      color: #e6f27a;
       font-size: 14px;
     }
 
@@ -67,24 +67,24 @@
       display: block;
       margin-bottom: 6px;
       margin-top: 12px;
-      color: #c0c0ff;
+      color: #e2f0a8;
       font-size: 14px;
     }
 
     input, select, button {
       width: 100%;
-      border: 1px solid #2a4066;
+      border: 1px solid #6a7a2a;
       border-radius: 12px;
-      background: #0a1628;
-      color: #fff;
+      background: #1a2a0a;
+      color: #ffffdd;
       padding: 12px 14px;
       font-size: 15px;
     }
 
     input:focus, select:focus {
       outline: none;
-      border-color: #00ffcc;
-      box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.2);
+      border-color: #f5e56b;
+      box-shadow: 0 0 0 3px rgba(230, 220, 60, 0.3);
     }
 
     button {
@@ -94,21 +94,23 @@
     }
 
     button:hover {
-      opacity: 0.95;
+      opacity: 0.92;
       transform: translateY(-1px);
     }
 
     .primary-btn {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #c5b358, #a3b34a);
       margin-top: 16px;
+      color: #1f2a0a;
     }
 
     .secondary-btn {
-      background: #1e2a4a;
+      background: #2f3e1a;
+      border-color: #aab85a;
     }
 
     .danger-btn {
-      background: #dc2626;
+      background: #b5651e;
       width: 48px;
       flex: 0 0 48px;
       padding: 0;
@@ -130,7 +132,7 @@
     .player-number {
       width: 30px;
       text-align: center;
-      color: #00ffcc;
+      color: #f5dd6e;
       font-weight: bold;
     }
 
@@ -155,8 +157,8 @@
     }
 
     .color-btn.selected {
-      border-color: #fff;
-      box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.35);
+      border-color: #ffd966;
+      box-shadow: 0 0 0 3px rgba(220, 200, 50, 0.5);
     }
 
     .toolbar {
@@ -181,11 +183,12 @@
     .tab-btn {
       width: auto;
       padding: 10px 14px;
-      background: #1e2a4a;
+      background: #2f3e1a;
     }
 
     .tab-btn.active {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #c5b358, #a3b34a);
+      color: #1f2e06;
     }
 
     .tab-content {
@@ -204,12 +207,11 @@
 
     .request-card,
     .team-card-item {
-      background: #0a1628;
-      border: 1px solid #1e2a4a;
-      border-left: 5px solid #3b82f6;
+      background: #1c2a0c;
+      border: 1px solid #6a7a30;
+      border-left: 5px solid #dbb42c;
       border-radius: 14px;
       padding: 14px;
-      transition: all 0.2s;
     }
 
     .team-name-header {
@@ -238,8 +240,8 @@
     }
 
     .player-chip {
-      background: #1e2a4a;
-      color: #c0c0ff;
+      background: #2a3a14;
+      color: #f0e6a0;
       padding: 6px 10px;
       border-radius: 999px;
       font-size: 13px;
@@ -248,10 +250,10 @@
     .empty-teams {
       padding: 20px;
       text-align: center;
-      color: #a0a0ff;
-      background: #0a1628;
+      color: #d6e68a;
+      background: #1c2a0c;
       border-radius: 14px;
-      border: 1px dashed #2a4066;
+      border: 1px dashed #6a7a30;
     }
 
     .filter-bar {
@@ -264,19 +266,20 @@
     .filter-btn {
       width: auto;
       padding: 8px 12px;
-      background: #1e2a4a;
+      background: #2f3e1a;
       font-size: 14px;
     }
 
     .filter-btn.active {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #c5b358, #a3b34a);
+      color: #1f2e06;
     }
 
     .admin-area {
       display: none;
       margin-top: 16px;
       padding-top: 16px;
-      border-top: 1px solid #2a4066;
+      border-top: 1px solid #6a7a2a;
     }
 
     .date-row {
@@ -303,35 +306,31 @@
       justify-content: flex-end;
       flex-wrap: wrap;
     }
-    
     .admin-btn-accept {
-      background: #10b981;
+      background: #5a8f2c;
       width: auto;
       padding: 8px 14px;
       font-size: 13px;
       border: none;
     }
-    
     .admin-btn-delete {
-      background: #dc2626;
+      background: #b5651e;
       width: auto;
       padding: 8px 14px;
       font-size: 13px;
       border: none;
     }
-    
     .admin-btn-accept:hover {
-      background: #059669;
+      background: #437a1a;
     }
-    
     .admin-btn-delete:hover {
-      background: #b91c1c;
+      background: #9a4a12;
     }
 
     .password-modal {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.85);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -342,8 +341,8 @@
     .modal-content {
       width: 100%;
       max-width: 380px;
-      background: #0a1628;
-      border: 1px solid #2a4066;
+      background: #1c2a0c;
+      border: 1px solid #c5b358;
       border-radius: 16px;
       padding: 20px;
     }
@@ -352,21 +351,6 @@
       display: flex;
       gap: 10px;
       margin-top: 14px;
-    }
-
-    .loading-spinner {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 0.6s linear infinite;
-      margin-right: 6px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
     }
 
     @media (max-width: 900px) {
@@ -411,12 +395,12 @@
 
         <label>🎨 Цвет команды</label>
         <div class="color-row">
-          <button type="button" class="color-btn selected" data-color="#3b82f6" style="background:#3b82f6;"></button>
-          <button type="button" class="color-btn" data-color="#ef4444" style="background:#ef4444;"></button>
-          <button type="button" class="color-btn" data-color="#10b981" style="background:#10b981;"></button>
-          <button type="button" class="color-btn" data-color="#f59e0b" style="background:#f59e0b;"></button>
-          <button type="button" class="color-btn" data-color="#8b5cf6" style="background:#8b5cf6;"></button>
-          <button type="button" class="color-btn" data-color="#ec4899" style="background:#ec4899;"></button>
+          <button type="button" class="color-btn selected" data-color="#dbb42c" style="background:#dbb42c;"></button>
+          <button type="button" class="color-btn" data-color="#c9d13b" style="background:#c9d13b;"></button>
+          <button type="button" class="color-btn" data-color="#6fbf1c" style="background:#6fbf1c;"></button>
+          <button type="button" class="color-btn" data-color="#e0b025" style="background:#e0b025;"></button>
+          <button type="button" class="color-btn" data-color="#9acd32" style="background:#9acd32;"></button>
+          <button type="button" class="color-btn" data-color="#f4d03f" style="background:#f4d03f;"></button>
         </div>
 
         <label>👥 Игроки</label>
@@ -475,12 +459,13 @@
   </div>
 
   <script>
+    // ==================== ВАШ URL - ВСТАВЬТЕ СЮДА ВАШУ ССЫЛКУ ====================
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCjMDm8q_RzaoLj5xLW5ItoEOwozKaj-4iHvfyEIDBGVRd6WOmwSrXoKknFFWnCNjYBg/exec";
 
     let pendingTeams = [];
     let activeTeams = [];
     let tourDate = "";
-    let selectedColor = "#3b82f6";
+    let selectedColor = "#dbb42c";
     let isAdmin = false;
     let currentGameFilter = "all";
 
@@ -532,25 +517,26 @@
 
     function setMessage(text, isError = false) {
       resultMsg.textContent = text;
-      resultMsg.style.color = isError ? "#f87171" : "#00ffcc";
+      resultMsg.style.color = isError ? "#f9b54c" : "#e6f27a";
       setTimeout(() => {
-        if (resultMsg.textContent === text) {
-          resultMsg.textContent = "";
-        }
+        if (resultMsg.textContent === text) resultMsg.textContent = "";
       }, 4000);
     }
 
     function createPlayerRow(num, value = "") {
       const div = document.createElement("div");
       div.className = "player-item";
+
       const numberSpan = document.createElement("span");
       numberSpan.className = "player-number";
       numberSpan.textContent = num;
+
       const input = document.createElement("input");
       input.type = "text";
       input.className = "player-input";
       input.placeholder = "Игрок " + num;
       input.value = value;
+
       const removeBtn = document.createElement("button");
       removeBtn.className = "danger-btn";
       removeBtn.type = "button";
@@ -559,6 +545,7 @@
         div.remove();
         renumberPlayers();
       };
+
       div.appendChild(numberSpan);
       div.appendChild(input);
       div.appendChild(removeBtn);
@@ -588,6 +575,7 @@
           const tabId = this.getAttribute("data-tab");
           tabBtns.forEach(b => b.classList.remove("active"));
           this.classList.add("active");
+
           if (tabId === "pending") {
             pendingTab.classList.add("active");
             activeTab.classList.remove("active");
@@ -627,38 +615,18 @@
 
     async function callScript(action, data = {}) {
       try {
-        const payload = { action, ...data };
-        console.log(`📤 Отправка ${action}:`, payload);
-        
         const response = await fetch(APPS_SCRIPT_URL, {
           method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action, ...data })
         });
-
-        // При no-cors мы не можем прочитать ответ, поэтому делаем обычный запрос
-        // Переделаем на обычный CORS запрос
-        const response2 = await fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-        
-        const text = await response2.text();
-        console.log(`📥 Ответ ${action}:`, text);
-        
+        const text = await response.text();
         try {
           return JSON.parse(text);
-        } catch (e) {
+        } catch(e) {
           return { status: "error", message: "Сервер вернул не JSON: " + text.substring(0, 100) };
         }
-      } catch (error) {
-        console.error(`❌ Ошибка ${action}:`, error);
+      } catch(error) {
         return { status: "error", message: error.message };
       }
     }
@@ -667,25 +635,18 @@
       try {
         statusPanel.textContent = "🔄 Загрузка данных...";
         const response = await fetch(APPS_SCRIPT_URL + "?t=" + Date.now());
-        const text = await response.text();
-        console.log("📥 Загрузка данных:", text);
-        
-        const data = JSON.parse(text);
-        if (data.status !== "success") {
-          throw new Error(data.message || "Ошибка загрузки");
-        }
-        
+        const data = await response.json();
+        if(data.status !== "success") throw new Error(data.message || "Ошибка загрузки");
         tourDate = data.tourDate || "не установлена";
         pendingTeams = Array.isArray(data.pending) ? data.pending : [];
         activeTeams = Array.isArray(data.active) ? data.active : [];
-        
         tourDateDisplay.textContent = "📅 Дата тура: " + tourDate;
         pendingCountSpan.textContent = pendingTeams.length;
         activeCountSpan.textContent = activeTeams.length;
         statusPanel.textContent = "✅ Данные загружены";
         renderAll();
-      } catch (error) {
-        console.error("❌ Ошибка загрузки:", error);
+      } catch(error) {
+        console.error(error);
         statusPanel.textContent = "⚠️ Ошибка подключения: " + error.message;
         pendingTeams = [];
         activeTeams = [];
@@ -704,51 +665,27 @@
     }
 
     async function approveTeam(teamId, teamName, game) {
-      if (!isAdmin) {
-        setMessage("⛔ Только администратор может одобрять команды", true);
-        return;
-      }
-      
+      if (!isAdmin) { setMessage("⛔ Только администратор", true); return; }
       setMessage(`⏳ Одобрение команды "${teamName}"...`);
-      
-      const result = await callScript("approveTeam", { 
-        id: teamId, 
-        teamName: teamName,
-        game: game 
-      });
-      
+      const result = await callScript("approveTeam", { id: teamId, teamName: teamName, game: game });
       if (result.status === "success") {
         await loadFromSheets();
-        setMessage(`✅ Команда "${teamName}" одобрена и перемещена в активные`);
+        setMessage(`✅ Команда "${teamName}" одобрена`);
       } else {
-        setMessage(`❌ Ошибка при одобрении: ${result.message || "неизвестная ошибка"}`, true);
+        setMessage(`❌ Ошибка: ${result.message}`, true);
       }
     }
 
     async function deleteTeam(teamId, teamName, source, game) {
-      if (!isAdmin) {
-        setMessage("⛔ Только администратор может удалять команды", true);
-        return;
-      }
-      
-      if (!confirm(`Вы уверены, что хотите удалить команду "${teamName}" из ${source === "pending" ? "новых" : "активных"}?`)) {
-        return;
-      }
-      
+      if (!isAdmin) { setMessage("⛔ Только администратор", true); return; }
+      if (!confirm(`Вы уверены, что хотите удалить команду "${teamName}"?`)) return;
       setMessage(`⏳ Удаление команды "${teamName}"...`);
-      
-      const result = await callScript("deleteTeam", { 
-        id: teamId, 
-        teamName: teamName,
-        source: source, 
-        game: game 
-      });
-      
+      const result = await callScript("deleteTeam", { id: teamId, teamName: teamName, source: source, game: game });
       if (result.status === "success") {
         await loadFromSheets();
-        setMessage(`🗑️ Команда "${teamName}" удалена из ${source === "pending" ? "новых" : "активных"}`);
+        setMessage(`🗑️ Команда "${teamName}" удалена`);
       } else {
-        setMessage(`❌ Ошибка удаления: ${result.message || "неизвестная ошибка"}`, true);
+        setMessage(`❌ Ошибка: ${result.message}`, true);
       }
     }
 
@@ -764,7 +701,7 @@
       
       let html = "";
       filteredPending.forEach(team => {
-        const teamColor = team.color || "#f59e0b";
+        const teamColor = team.color || "#dbb42c";
         const players = Array.isArray(team.players) ? team.players : [];
         const teamId = team.id || team._id || String(Date.now());
         
@@ -826,7 +763,7 @@
       
       let html = "";
       activeTeams.forEach(team => {
-        const teamColor = team.color || "#10b981";
+        const teamColor = team.color || "#9acd32";
         const players = Array.isArray(team.players) ? team.players : [];
         const teamId = team.id || team._id || String(Date.now());
         
@@ -908,10 +845,7 @@
       
       okBtn.onclick = async function() {
         const password = input.value.trim();
-        if (!password) {
-          setMessage("❌ Введите пароль", true);
-          return;
-        }
+        if (!password) { setMessage("❌ Введите пароль", true); return; }
         
         okBtn.disabled = true;
         okBtn.textContent = "⏳ Проверка...";
@@ -992,10 +926,10 @@
       
       teamNameInput.value = "";
       initPlayers(2);
-      selectedColor = "#3b82f6";
+      selectedColor = "#dbb42c";
       document.querySelectorAll(".color-btn").forEach(btn => {
         btn.classList.remove("selected");
-        if (btn.getAttribute("data-color") === "#3b82f6") {
+        if (btn.getAttribute("data-color") === "#dbb42c") {
           btn.classList.add("selected");
         }
       });
