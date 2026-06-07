@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Турнирные заявки</title>
+  <title>Турнирные заявки | Админ-панель</title>
   <style>
     * {
       box-sizing: border-box;
@@ -20,7 +20,7 @@
     }
 
     .container {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
     }
 
@@ -209,6 +209,7 @@
       border-left: 5px solid #3b82f6;
       border-radius: 14px;
       padding: 14px;
+      transition: all 0.2s;
     }
 
     .team-name-header {
@@ -293,6 +294,41 @@
     .date-row button {
       width: auto;
       min-width: 150px;
+    }
+
+    /* админские кнопки внутри карточек */
+    .admin-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .admin-btn-accept {
+      background: #10b981;
+      width: auto;
+      padding: 8px 14px;
+      font-size: 13px;
+      border: none;
+    }
+    .admin-btn-delete {
+      background: #dc2626;
+      width: auto;
+      padding: 8px 14px;
+      font-size: 13px;
+      border: none;
+    }
+    .admin-btn-accept:hover {
+      background: #059669;
+    }
+    .admin-btn-delete:hover {
+      background: #b91c1c;
+    }
+    .action-badge {
+      font-size: 12px;
+      background: #2a4066;
+      padding: 4px 8px;
+      border-radius: 20px;
     }
 
     .password-modal {
@@ -391,7 +427,7 @@
         </div>
 
         <div id="filterPanel" class="admin-area">
-          <h3>🔍 Фильтр по игре</h3>
+          <h3>🔍 Фильтр по игре (админ)</h3>
           <div class="filter-bar" id="filterBar">
             <button class="filter-btn active" data-game="all" type="button">🌐 Все</button>
             <button class="filter-btn" data-game="Dota 2" type="button">🎮 Dota 2</button>
@@ -404,7 +440,7 @@
         </div>
 
         <div id="dateEditArea" class="admin-area">
-          <h3>📅 Изменить дату тура</h3>
+          <h3>📅 Изменить дату тура (админ)</h3>
           <div class="date-row">
             <input id="newDateInput" type="date" />
             <button id="saveDateBtn" class="secondary-btn" type="button">💾 Сохранить дату</button>
@@ -492,17 +528,14 @@
     function createPlayerRow(num, value = "") {
       const div = document.createElement("div");
       div.className = "player-item";
-
       const numberSpan = document.createElement("span");
       numberSpan.className = "player-number";
       numberSpan.textContent = num;
-
       const input = document.createElement("input");
       input.type = "text";
       input.className = "player-input";
       input.placeholder = "Игрок " + num;
       input.value = value;
-
       const removeBtn = document.createElement("button");
       removeBtn.className = "danger-btn";
       removeBtn.type = "button";
@@ -511,7 +544,6 @@
         div.remove();
         renumberPlayers();
       };
-
       div.appendChild(numberSpan);
       div.appendChild(input);
       div.appendChild(removeBtn);
@@ -541,7 +573,6 @@
           const tabId = this.getAttribute("data-tab");
           tabBtns.forEach(b => b.classList.remove("active"));
           this.classList.add("active");
-
           if (tabId === "pending") {
             pendingTab.classList.add("active");
             activeTab.classList.remove("active");
@@ -583,30 +614,17 @@
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
           method: "POST",
-          headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-          },
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({ action, ...data })
         });
-
         const text = await response.text();
-        console.log("POST RESPONSE:", text);
-
         try {
           return JSON.parse(text);
         } catch (e) {
-          return {
-            status: "error",
-            message: "Сервер вернул не JSON",
-            raw: text
-          };
+          return { status: "error", message: "Сервер вернул не JSON", raw: text };
         }
       } catch (error) {
-        console.error("POST ERROR:", error);
-        return {
-          status: "error",
-          message: error.message
-        };
+        return { status: "error", message: error.message };
       }
     }
 
@@ -615,18 +633,11 @@
         statusPanel.textContent = "🔄 Загрузка данных...";
         const response = await fetch(APPS_SCRIPT_URL + "?_=" + Date.now());
         const text = await response.text();
-        console.log("GET RESPONSE:", text);
-
         const data = JSON.parse(text);
-
-        if (data.status !== "success") {
-          throw new Error(data.message || "Ошибка загрузки");
-        }
-
+        if (data.status !== "success") throw new Error(data.message || "Ошибка загрузки");
         tourDate = data.tourDate || "не установлена";
         pendingTeams = Array.isArray(data.pending) ? data.pending : [];
         activeTeams = Array.isArray(data.active) ? data.active : [];
-
         tourDateDisplay.textContent = "📅 Дата тура: " + tourDate;
         pendingCountSpan.textContent = pendingTeams.length;
         activeCountSpan.textContent = activeTeams.length;
@@ -634,7 +645,7 @@
         renderAll();
       } catch (error) {
         console.error(error);
-        statusPanel.textContent = "⚠️ Ошибка подключения. Проверьте Apps Script.";
+        statusPanel.textContent = "⚠️ Ошибка подключения";
         pendingTeams = [];
         activeTeams = [];
         renderAll();
@@ -652,37 +663,60 @@
       }
     }
 
+    // === АДМИН ДЕЙСТВИЯ: ПРИНЯТЬ (одобрить) и УДАЛИТЬ ===
+    async function approveTeam(teamId, game) {
+      if (!isAdmin) { setMessage("⛔ Только администратор", "#f87171"); return; }
+      const result = await callScript("approveTeam", { id: teamId, game });
+      if (result.status === "success") {
+        await loadFromSheets();
+        setMessage(`✅ Команда одобрена и перемещена в активные`);
+        setTimeout(() => resultMsg.textContent = "", 2500);
+      } else {
+        setMessage(`❌ Ошибка при одобрении: ${result.message || "неизвестная ошибка"}`, "#f87171");
+      }
+    }
+
+    async function deleteTeam(teamId, source, game) {
+      if (!isAdmin) { setMessage("⛔ Только администратор", "#f87171"); return; }
+      const result = await callScript("deleteTeam", { id: teamId, source, game });
+      if (result.status === "success") {
+        await loadFromSheets();
+        setMessage(`🗑️ Команда удалена из ${source === "pending" ? "новых" : "активных"}`);
+        setTimeout(() => resultMsg.textContent = "", 2500);
+      } else {
+        setMessage(`❌ Ошибка удаления: ${result.message || "неизвестно"}`, "#f87171");
+      }
+    }
+
+    // рендер с админ-кнопками
     function renderPending(filteredPending) {
       if (filteredPending.length === 0) {
-        if (pendingTeams.length === 0) {
-          pendingListDiv.innerHTML = '<div class="empty-teams">📭 Нет новых заявок</div>';
-        } else {
-          pendingListDiv.innerHTML = '<div class="empty-teams">🎮 Нет заявок по игре "' + escapeHtml(currentGameFilter) + '"</div>';
-        }
+        if (pendingTeams.length === 0) pendingListDiv.innerHTML = '<div class="empty-teams">📭 Нет новых заявок</div>';
+        else pendingListDiv.innerHTML = '<div class="empty-teams">🎮 Нет заявок по игре "' + escapeHtml(currentGameFilter) + '"</div>';
         return;
       }
-
       let html = "";
       filteredPending.forEach(team => {
         const teamColor = team.color || "#f59e0b";
         const players = Array.isArray(team.players) ? team.players : [];
         html += '<div class="request-card" style="border-left-color:' + teamColor + '">';
         html += '<div class="team-name-header">';
-        html += '<div class="team-name">';
-        html += '<span>' + getGameEmoji(team.game) + ' ' + escapeHtml(team.game || "") + '</span>';
-        html += '<strong style="color:' + teamColor + '">' + escapeHtml(team.teamName || "") + '</strong>';
-        html += '</div>';
-        html += '<span class="muted">' + players.length + ' игроков</span>';
-        html += '</div>';
+        html += '<div class="team-name"><span>' + getGameEmoji(team.game) + ' ' + escapeHtml(team.game) + '</span>';
+        html += '<strong style="color:' + teamColor + '">' + escapeHtml(team.teamName) + '</strong></div>';
+        html += '<span class="muted">' + players.length + ' игроков</span></div>';
         html += '<div class="players-list-compact">';
-        players.forEach(player => {
-          html += '<span class="player-chip">⚡ ' + escapeHtml(player) + '</span>';
-        });
-        html += '</div>';
-        html += '<div class="muted" style="margin-top:10px;">📅 ' + escapeHtml(team.registeredAt || "") + '</div>';
+        players.forEach(player => { html += '<span class="player-chip">⚡ ' + escapeHtml(player) + '</span>'; });
+        html += '</div><div class="muted" style="margin-top:10px;">📅 ' + escapeHtml(team.registeredAt || "") + '</div>';
+        if (isAdmin) {
+          html += '<div class="admin-actions">';
+          html += `<button class="admin-btn-accept" data-id="${escapeHtml(team.id)}" data-game="${escapeHtml(team.game)}" data-action="approve">✅ Принять</button>`;
+          html += `<button class="admin-btn-delete" data-id="${escapeHtml(team.id)}" data-game="${escapeHtml(team.game)}" data-source="pending" data-action="delete">❌ Удалить</button>`;
+          html += '</div>';
+        }
         html += '</div>';
       });
       pendingListDiv.innerHTML = html;
+      if (isAdmin) attachAdminEvents();
     }
 
     function renderActive() {
@@ -690,28 +724,55 @@
         activeListDiv.innerHTML = '<div class="empty-teams">🎯 Нет активных команд</div>';
         return;
       }
-
       let html = "";
       activeTeams.forEach(team => {
         const teamColor = team.color || "#10b981";
         const players = Array.isArray(team.players) ? team.players : [];
         html += '<div class="team-card-item" style="border-left-color:' + teamColor + '">';
         html += '<div class="team-name-header">';
-        html += '<div class="team-name">';
-        html += '<span>' + getGameEmoji(team.game) + ' ' + escapeHtml(team.game || "") + '</span>';
-        html += '<strong style="color:' + teamColor + '">' + escapeHtml(team.teamName || "") + '</strong>';
-        html += '</div>';
-        html += '<span class="muted">' + players.length + ' игроков</span>';
-        html += '</div>';
+        html += '<div class="team-name"><span>' + getGameEmoji(team.game) + ' ' + escapeHtml(team.game) + '</span>';
+        html += '<strong style="color:' + teamColor + '">' + escapeHtml(team.teamName) + '</strong></div>';
+        html += '<span class="muted">' + players.length + ' игроков</span></div>';
         html += '<div class="players-list-compact">';
-        players.forEach(player => {
-          html += '<span class="player-chip">⚡ ' + escapeHtml(player) + '</span>';
-        });
-        html += '</div>';
-        html += '<div class="muted" style="margin-top:10px;">📅 ' + escapeHtml(team.registeredAt || "") + '</div>';
+        players.forEach(player => { html += '<span class="player-chip">⚡ ' + escapeHtml(player) + '</span>'; });
+        html += '</div><div class="muted" style="margin-top:10px;">📅 ' + escapeHtml(team.registeredAt || "") + '</div>';
+        if (isAdmin) {
+          html += '<div class="admin-actions">';
+          html += `<button class="admin-btn-delete" data-id="${escapeHtml(team.id)}" data-game="${escapeHtml(team.game)}" data-source="active" data-action="delete">❌ Удалить из активных</button>`;
+          html += '</div>';
+        }
         html += '</div>';
       });
       activeListDiv.innerHTML = html;
+      if (isAdmin) attachAdminEvents();
+    }
+
+    function attachAdminEvents() {
+      document.querySelectorAll('.admin-btn-accept').forEach(btn => {
+        btn.removeEventListener('click', handleAccept);
+        btn.addEventListener('click', handleAccept);
+      });
+      document.querySelectorAll('.admin-btn-delete').forEach(btn => {
+        btn.removeEventListener('click', handleDelete);
+        btn.addEventListener('click', handleDelete);
+      });
+    }
+
+    function handleAccept(e) {
+      const btn = e.currentTarget;
+      const id = btn.getAttribute('data-id');
+      const game = btn.getAttribute('data-game');
+      if (id && game) approveTeam(id, game);
+      else setMessage("Ошибка: не удалось определить команду", "#f87171");
+    }
+
+    function handleDelete(e) {
+      const btn = e.currentTarget;
+      const id = btn.getAttribute('data-id');
+      const source = btn.getAttribute('data-source');
+      const game = btn.getAttribute('data-game');
+      if (id && source) deleteTeam(id, source, game);
+      else setMessage("Ошибка: не удалось определить команду", "#f87171");
     }
 
     function renderAll() {
@@ -719,16 +780,11 @@
       if (currentGameFilter !== "all") {
         filteredPending = pendingTeams.filter(team => team.game === currentGameFilter);
       }
-
       pendingCountSpan.textContent = pendingTeams.length;
       activeCountSpan.textContent = activeTeams.length;
       dateEditArea.style.display = isAdmin ? "block" : "none";
       filterPanel.style.display = isAdmin ? "block" : "none";
-
-      if (adminLoginBtn) {
-        adminLoginBtn.textContent = isAdmin ? "👑 Админ активен" : "🔐 Вход для админа";
-      }
-
+      if (adminLoginBtn) adminLoginBtn.textContent = isAdmin ? "👑 Админ активен" : "🔐 Вход для админа";
       renderPending(filteredPending);
       renderActive();
     }
@@ -748,26 +804,17 @@
         </div>
       `;
       document.body.appendChild(modal);
-
       const input = modal.querySelector("#adminPass");
       const okBtn = modal.querySelector("#modalOk");
       const cancelBtn = modal.querySelector("#modalCancel");
-
       okBtn.onclick = async function() {
         const password = input.value.trim();
-        if (!password) {
-          setMessage("❌ Введите пароль", "#f87171");
-          return;
-        }
-
+        if (!password) { setMessage("❌ Введите пароль", "#f87171"); return; }
         okBtn.disabled = true;
         okBtn.textContent = "Проверка...";
-
         const result = await callScript("adminLogin", { password });
-
         okBtn.disabled = false;
         okBtn.textContent = "Войти";
-
         if (result.status === "success") {
           isAdmin = true;
           renderAll();
@@ -780,42 +827,24 @@
           setMessage("❌ Неверный пароль", "#f87171");
         }
       };
-
-      cancelBtn.onclick = function() {
-        modal.remove();
-      };
-
-      input.addEventListener("keydown", function(e) {
-        if (e.key === "Enter") okBtn.click();
-      });
-
+      cancelBtn.onclick = () => modal.remove();
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter") okBtn.click(); });
       input.focus();
     }
 
     async function sendRequest() {
       const teamName = teamNameInput.value.trim();
-      if (!teamName) {
-        setMessage("❌ Введите название команды", "#f87171");
-        return;
-      }
-
+      if (!teamName) { setMessage("❌ Введите название команды", "#f87171"); return; }
       const players = [];
       let empty = false;
-
       document.querySelectorAll(".player-input").forEach(inp => {
         const val = inp.value.trim();
         if (!val) empty = true;
         else players.push(val);
       });
-
-      if (empty || players.length === 0) {
-        setMessage("❌ Заполните имена всех игроков", "#f87171");
-        return;
-      }
-
+      if (empty || players.length === 0) { setMessage("❌ Заполните имена всех игроков", "#f87171"); return; }
       registerBtn.disabled = true;
       registerBtn.textContent = "⏳ Отправка...";
-
       const newTeam = {
         id: String(Date.now()),
         teamName,
@@ -824,59 +853,36 @@
         players,
         registeredAt: new Date().toLocaleString("ru-RU")
       };
-
       const result = await callScript("addTeam", newTeam);
-
       registerBtn.disabled = false;
       registerBtn.textContent = "📨 Отправить заявку";
-
       if (result.status !== "success") {
         setMessage("❌ " + (result.message || "Ошибка отправки заявки"), "#f87171");
         return;
       }
-
       await loadFromSheets();
       setMessage('✅ Заявка "' + teamName + '" отправлена');
-
       teamNameInput.value = "";
       initPlayers(2);
       selectedColor = "#3b82f6";
       document.querySelectorAll(".color-btn").forEach(btn => {
         btn.classList.remove("selected");
-        if (btn.getAttribute("data-color") === "#3b82f6") {
-          btn.classList.add("selected");
-        }
+        if (btn.getAttribute("data-color") === "#3b82f6") btn.classList.add("selected");
       });
-
       document.querySelector('.tab-btn[data-tab="pending"]').click();
       setTimeout(() => resultMsg.textContent = "", 3000);
     }
 
-    refreshBtn.addEventListener("click", async function() {
-      await loadFromSheets();
-      setMessage("📋 Данные обновлены");
-      setTimeout(() => resultMsg.textContent = "", 2000);
-    });
-
+    refreshBtn.addEventListener("click", async () => { await loadFromSheets(); setMessage("📋 Данные обновлены"); setTimeout(() => resultMsg.textContent = "", 2000); });
     registerBtn.addEventListener("click", sendRequest);
     adminLoginBtn.addEventListener("click", showPasswordModal);
-
-    saveDateBtn.addEventListener("click", async function() {
-      if (!isAdmin) {
-        setMessage("⛔ Только администратор может менять дату", "#f87171");
-        return;
-      }
-
+    saveDateBtn.addEventListener("click", async () => {
+      if (!isAdmin) { setMessage("⛔ Только администратор", "#f87171"); return; }
       const newDate = newDateInput.value;
-      if (!newDate) {
-        setMessage("❌ Выберите дату", "#f87171");
-        return;
-      }
-
+      if (!newDate) { setMessage("❌ Выберите дату", "#f87171"); return; }
       const formattedDate = newDate.split("-").reverse().join(".");
       await saveTourDate(formattedDate);
     });
-
     initPlayers(2);
     setupTabs();
     setupFilters();
